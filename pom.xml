@@ -25,7 +25,7 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>cz.nitramek.bia.gui.MainForm</mainClass>
+                            <mainClass>cz.nitramek.bia.gui.EntryPoint</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

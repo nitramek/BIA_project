@@ -31,7 +31,7 @@ public class FunctionSurfaceModel implements ISurfacePlotModel {
 
     @Override
     public boolean isBoxed() {
-        return false;
+        return true;
     }
 
     @Override
