@@ -8,8 +8,9 @@ import net.sf.surfaceplot.SurfaceCanvas;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Vector;
-import java.util.function.BiConsumer;
+import java.util.stream.IntStream;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
@@ -18,27 +19,25 @@ public class FunctionsForm extends JFrame {
 
 
     private final SurfaceCanvas canvas;
-    private final JSpinner spinnerXMin;
-    private final JSpinner spinnerXMax;
-    private final JSpinner spinnerYMin;
-    private final JSpinner spinnerYMax;
-    private final JSpinner spinnerZMin;
-    private final JSpinner spinnerZMax;
-    private final JButton applyAxisButton;
+    private JButton applyAxisButton;
     private JComboBox<ComboItem<Function>> comboBox;
     private FunctionSurfaceModel model;
+
+
+    private List<JSpinner> spinners;
+    private List<java.util.function.Function<FunctionSurfaceModel, Float>> getters = Arrays
+            .asList(FunctionSurfaceModel::getXMin, FunctionSurfaceModel::getXMax, FunctionSurfaceModel::getYMin,
+                    FunctionSurfaceModel::getYMax, FunctionSurfaceModel::getZMin, FunctionSurfaceModel::getZMax);
+    private List<java.util.function.BiConsumer<FunctionSurfaceModel, Float>> setters = Arrays
+            .asList(FunctionSurfaceModel::setXMin, FunctionSurfaceModel::setXMax, FunctionSurfaceModel::setYMin,
+                    FunctionSurfaceModel::setYMax, FunctionSurfaceModel::setZMin, FunctionSurfaceModel::setZMax);
+
 
     public FunctionsForm(String frameName) {
         super(frameName);
         this.getContentPane().setLayout(new BorderLayout());
         this.canvas = new SurfaceCanvas();
         this.comboBox = new JComboBox<>();
-        this.spinnerXMin = new JSpinner(new SpinnerNumberModel());
-        this.spinnerXMax = new JSpinner();
-        this.spinnerYMin = new JSpinner();
-        this.spinnerYMax = new JSpinner();
-        this.spinnerZMin = new JSpinner();
-        this.spinnerZMax = new JSpinner();
 
 
         JPanel functionsPanel = new JPanel(new GridBagLayout());
@@ -47,6 +46,32 @@ public class FunctionsForm extends JFrame {
         functionsPanel.setPreferredSize(size);
         functionsPanel.setSize(size);
 
+        this.setupAxisPanel(functionsPanel);
+
+
+        this.add(this.canvas, BorderLayout.CENTER);
+        this.add(functionsPanel, BorderLayout.EAST);
+
+
+        this.setupData();
+        this.setupListeners();
+    }
+
+    public static Function createFunction(Class<?> function) {
+        try {
+            return (Function) function.newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void setupAxisPanel(JPanel functionsPanel) {
+        JSpinner spinnerXMin = new JSpinner();
+        JSpinner spinnerXMax = new JSpinner();
+        JSpinner spinnerYMin = new JSpinner();
+        JSpinner spinnerYMax = new JSpinner();
+        JSpinner spinnerZMin = new JSpinner();
+        JSpinner spinnerZMax = new JSpinner();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -88,9 +113,9 @@ public class FunctionsForm extends JFrame {
         axisPanel.add(new JLabel("X"), gbc);
         gbc.gridx = 1;
         gbc.ipadx = 50;
-        axisPanel.add(this.spinnerXMin, gbc);
+        axisPanel.add(spinnerXMin, gbc);
         gbc.gridx = 2;
-        axisPanel.add(this.spinnerXMax, gbc);
+        axisPanel.add(spinnerXMax, gbc);
 
         //third row
         gbc.gridx = 0;
@@ -99,9 +124,9 @@ public class FunctionsForm extends JFrame {
         axisPanel.add(new JLabel("Y"), gbc);
         gbc.gridx = 1;
         gbc.ipadx = 50;
-        axisPanel.add(this.spinnerYMin, gbc);
+        axisPanel.add(spinnerYMin, gbc);
         gbc.gridx = 2;
-        axisPanel.add(this.spinnerYMax, gbc);
+        axisPanel.add(spinnerYMax, gbc);
 
 
         //fourth row
@@ -110,9 +135,9 @@ public class FunctionsForm extends JFrame {
         axisPanel.add(new JLabel("Z"), gbc);
         gbc.gridx = 1;
 
-        axisPanel.add(this.spinnerZMin, gbc);
+        axisPanel.add(spinnerZMin, gbc);
         gbc.gridx = 2;
-        axisPanel.add(this.spinnerZMax, gbc);
+        axisPanel.add(spinnerZMax, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 4;
@@ -120,21 +145,7 @@ public class FunctionsForm extends JFrame {
         gbc.gridwidth = 2;
         this.applyAxisButton = new JButton("Apply");
         axisPanel.add(applyAxisButton, gbc);
-
-
-        this.add(this.canvas, BorderLayout.CENTER);
-        this.add(functionsPanel, BorderLayout.EAST);
-
-        this.setupData();
-        this.setupListeners();
-    }
-
-    public static Function createFunction(Class<?> function) {
-        try {
-            return (Function) function.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+        this.spinners = Arrays.asList(spinnerXMin, spinnerXMax, spinnerYMin, spinnerYMax, spinnerZMin, spinnerZMax);
     }
 
     private void setupData() {
@@ -158,33 +169,20 @@ public class FunctionsForm extends JFrame {
             this.model = new FunctionSurfaceModel(function);
             this.invalidateCanvas();
         });
+        //on axis apply button
         this.applyAxisButton.addActionListener(e -> {
-            this.setFromSpinner(this.spinnerXMin, FunctionSurfaceModel::setXMin);
-            this.setFromSpinner(this.spinnerXMax, FunctionSurfaceModel::setXMax);
-            this.setFromSpinner(this.spinnerYMin, FunctionSurfaceModel::setYMin);
-            this.setFromSpinner(this.spinnerYMax, FunctionSurfaceModel::setYMax);
-            this.setFromSpinner(this.spinnerZMin, FunctionSurfaceModel::setZMin);
-            this.setFromSpinner(this.spinnerZMax, FunctionSurfaceModel::setZMax);
+            IntStream.range(0, this.spinners.size()).forEach(i -> {
+                Number number = (Number) this.spinners.get(i).getValue();
+                this.setters.get(i).accept(this.model, number.floatValue());
+            });
             this.invalidateCanvas();
         });
     }
 
-    private void setFromSpinner(JSpinner spinner, BiConsumer<FunctionSurfaceModel, Float> setter) {
-        Number value = (Number) spinner.getValue();
-        setter.accept(this.model, value.floatValue());
-    }
-
-    private void setToModel(JSpinner spinner, java.util.function.Function<FunctionSurfaceModel, Float> getter) {
-        spinner.setValue(getter.apply(this.model));
-    }
-
     private void invalidateCanvas() {
-        this.setToModel(this.spinnerXMin, FunctionSurfaceModel::getXMin);
-        this.setToModel(this.spinnerXMax, FunctionSurfaceModel::getXMax);
-        this.setToModel(this.spinnerYMin, FunctionSurfaceModel::getYMin);
-        this.setToModel(this.spinnerYMax, FunctionSurfaceModel::getYMax);
-        this.setToModel(this.spinnerZMin, FunctionSurfaceModel::getZMin);
-        this.setToModel(this.spinnerZMax, FunctionSurfaceModel::getZMax);
+        IntStream.range(0, this.spinners.size()).forEach(i -> {
+            this.spinners.get(i).setValue(this.getters.get(i).apply(this.model));
+        });
 
         this.canvas.setModel(this.model);
         this.canvas.invalidate();
