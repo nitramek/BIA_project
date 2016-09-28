@@ -13,8 +13,8 @@ public class EntryPoint {
             AckleyTwo.class, EggHolder.class, Rana.class, Patological.class, Michalewicz.class, MastersCosine.class};
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("FunctionForm");
-        frame.setContentPane(new FunctionForm().getMainPanel());
+
+        FunctionsForm frame = new FunctionsForm("FunctionForm");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setVisible(true);

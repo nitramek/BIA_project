@@ -1,22 +1,19 @@
 package cz.nitramek.bia.gui;
 
 import cz.nitramek.bia.function.Function;
+import lombok.ToString;
 import net.sf.surfaceplot.ISurfacePlotModel;
 
 
+@ToString
 public class FunctionSurfaceModel implements ISurfacePlotModel {
 
-
-    public int min = 5;
     private Function function;
-    private float zMax = 40.f;
+
 
     public FunctionSurfaceModel(Function function) {
         this.function = function;
-    }
 
-    public void setMin(int min) {
-        this.min = min;
     }
 
     @Override
@@ -97,10 +94,6 @@ public class FunctionSurfaceModel implements ISurfacePlotModel {
     @Override
     public float getZMax() {
         return (float) this.function.getOptimalZMax();
-    }
-
-    public void setZMax(float zMax) {
-        this.zMax = zMax;
     }
 
     @Override
