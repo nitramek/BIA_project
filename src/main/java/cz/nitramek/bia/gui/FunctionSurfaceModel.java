@@ -1,6 +1,7 @@
 package cz.nitramek.bia.gui;
 
 import cz.nitramek.bia.function.Function;
+import lombok.Setter;
 import lombok.ToString;
 import net.sf.surfaceplot.ISurfacePlotModel;
 
@@ -8,12 +9,30 @@ import net.sf.surfaceplot.ISurfacePlotModel;
 @ToString
 public class FunctionSurfaceModel implements ISurfacePlotModel {
 
+    @Setter
+    private float xMin;
+    @Setter
+    private float xMax;
+    @Setter
+    private float yMin;
+    @Setter
+    private float yMax;
+    @Setter
+    private float zMin;
+    @Setter
+    private float zMax;
+
     private Function function;
 
 
     public FunctionSurfaceModel(Function function) {
         this.function = function;
-
+        this.xMin = this.function.getOptimalXMin();
+        this.xMax = this.function.getOptimalXMax();
+        this.yMin = this.function.getOptimalYMin();
+        this.yMax = this.function.getOptimalYMax();
+        this.zMin = (float) this.function.getOptimalZMin();
+        this.zMax = (float) this.function.getOptimalZMax();
     }
 
     @Override
@@ -68,32 +87,32 @@ public class FunctionSurfaceModel implements ISurfacePlotModel {
 
     @Override
     public float getXMin() {
-        return this.function.getOptimalXMin();
+        return this.xMin;
     }
 
     @Override
     public float getXMax() {
-        return this.function.getOptimalXMax();
+        return this.xMax;
     }
 
     @Override
     public float getYMin() {
-        return this.function.getOptimalYMin();
+        return this.yMin;
     }
 
     @Override
     public float getYMax() {
-        return this.function.getOptimalYMax();
+        return this.yMax;
     }
 
     @Override
     public float getZMin() {
-        return (float) this.function.getOptimalZMin();
+        return this.zMin;
     }
 
     @Override
     public float getZMax() {
-        return (float) this.function.getOptimalZMax();
+        return this.zMax;
     }
 
     @Override

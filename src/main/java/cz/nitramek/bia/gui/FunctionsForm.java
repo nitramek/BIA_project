@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.Vector;
+import java.util.function.BiConsumer;
 
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
@@ -24,15 +25,15 @@ public class FunctionsForm extends JFrame {
     private final JSpinner spinnerZMin;
     private final JSpinner spinnerZMax;
     private final JButton applyAxisButton;
-    private FunctionSurfaceModel model;
     private JComboBox<ComboItem<Function>> comboBox;
+    private FunctionSurfaceModel model;
 
     public FunctionsForm(String frameName) {
         super(frameName);
         this.getContentPane().setLayout(new BorderLayout());
         this.canvas = new SurfaceCanvas();
         this.comboBox = new JComboBox<>();
-        this.spinnerXMin = new JSpinner();
+        this.spinnerXMin = new JSpinner(new SpinnerNumberModel());
         this.spinnerXMax = new JSpinner();
         this.spinnerYMin = new JSpinner();
         this.spinnerYMax = new JSpinner();
@@ -153,16 +154,38 @@ public class FunctionsForm extends JFrame {
         this.comboBox.addActionListener(e -> {
             ComboBoxModel<ComboItem<Function>> model = this.comboBox.getModel();
             ComboItem<Function> comboItem = model.getElementAt(this.comboBox.getSelectedIndex());
-            Function item = comboItem.getItem();
-            this.model.setFunction(item);
+            Function function = comboItem.getItem();
+            this.model = new FunctionSurfaceModel(function);
             this.invalidateCanvas();
         });
         this.applyAxisButton.addActionListener(e -> {
-
+            this.setFromSpinner(this.spinnerXMin, FunctionSurfaceModel::setXMin);
+            this.setFromSpinner(this.spinnerXMax, FunctionSurfaceModel::setXMax);
+            this.setFromSpinner(this.spinnerYMin, FunctionSurfaceModel::setYMin);
+            this.setFromSpinner(this.spinnerYMax, FunctionSurfaceModel::setYMax);
+            this.setFromSpinner(this.spinnerZMin, FunctionSurfaceModel::setZMin);
+            this.setFromSpinner(this.spinnerZMax, FunctionSurfaceModel::setZMax);
+            this.invalidateCanvas();
         });
     }
 
+    private void setFromSpinner(JSpinner spinner, BiConsumer<FunctionSurfaceModel, Float> setter) {
+        Number value = (Number) spinner.getValue();
+        setter.accept(this.model, value.floatValue());
+    }
+
+    private void setToModel(JSpinner spinner, java.util.function.Function<FunctionSurfaceModel, Float> getter) {
+        spinner.setValue(getter.apply(this.model));
+    }
+
     private void invalidateCanvas() {
+        this.setToModel(this.spinnerXMin, FunctionSurfaceModel::getXMin);
+        this.setToModel(this.spinnerXMax, FunctionSurfaceModel::getXMax);
+        this.setToModel(this.spinnerYMin, FunctionSurfaceModel::getYMin);
+        this.setToModel(this.spinnerYMax, FunctionSurfaceModel::getYMax);
+        this.setToModel(this.spinnerZMin, FunctionSurfaceModel::getZMin);
+        this.setToModel(this.spinnerZMax, FunctionSurfaceModel::getZMax);
+
         this.canvas.setModel(this.model);
         this.canvas.invalidate();
     }

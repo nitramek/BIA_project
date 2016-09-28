@@ -122,6 +122,10 @@ public class SurfaceCanvas extends Canvas {
                 && !values[3].isInvalid());
     }
 
+    public ISurfacePlotModel getModel() {
+        return model;
+    }
+
     public void setModel(ISurfacePlotModel model) {
         this.model = model;
         plot_mode = model.getPlotMode();
@@ -146,7 +150,6 @@ public class SurfaceCanvas extends Canvas {
         bufferImage = null;
         this.renderSurface();
     }
-
     /**
      * <code>mouseUp<code> event handler. Regenerates image if dragging operations
      * have been done with the delay regeneration flag set on.
