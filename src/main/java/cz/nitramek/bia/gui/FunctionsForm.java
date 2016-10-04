@@ -1,17 +1,26 @@
 package cz.nitramek.bia.gui;
 
 
+import com.carrotsearch.hppc.DoubleArrayList;
 import cz.nitramek.bia.function.Function;
+import cz.nitramek.bia.function.Paret;
 import lombok.val;
 import net.sf.surfaceplot.SurfaceCanvas;
+import org.knowm.xchart.SwingWrapper;
+import org.knowm.xchart.XYChart;
+import org.knowm.xchart.XYChartBuilder;
+import org.knowm.xchart.XYSeries;
+import org.knowm.xchart.style.Styler;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
+import static java.lang.Math.*;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
@@ -24,7 +33,7 @@ public class FunctionsForm extends JFrame {
     private FunctionSurfaceModel model;
 
 
-    private List<JSpinner> spinners;
+    private List<JTextField> spinners;
     private List<java.util.function.Function<FunctionSurfaceModel, Float>> getters = Arrays
             .asList(FunctionSurfaceModel::getXMin, FunctionSurfaceModel::getXMax, FunctionSurfaceModel::getYMin,
                     FunctionSurfaceModel::getYMax, FunctionSurfaceModel::getZMin, FunctionSurfaceModel::getZMax);
@@ -66,12 +75,12 @@ public class FunctionsForm extends JFrame {
     }
 
     private void setupAxisPanel(JPanel functionsPanel) {
-        JSpinner spinnerXMin = new JSpinner();
-        JSpinner spinnerXMax = new JSpinner();
-        JSpinner spinnerYMin = new JSpinner();
-        JSpinner spinnerYMax = new JSpinner();
-        JSpinner spinnerZMin = new JSpinner();
-        JSpinner spinnerZMax = new JSpinner();
+        JTextField spinnerXMin = new JTextField();
+        JTextField spinnerXMax = new JTextField();
+        JTextField spinnerYMin = new JTextField();
+        JTextField spinnerYMax = new JTextField();
+        JTextField spinnerZMin = new JTextField();
+        JTextField spinnerZMax = new JTextField();
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.NORTH;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -87,12 +96,54 @@ public class FunctionsForm extends JFrame {
         gbc.gridx = 0;
         gbc.weighty = 0.;
         functionsPanel.add(axisPanel, gbc);
-        gbc.gridy = 2;
+
+
+        gbc.gridy = 3;
         gbc.weighty = 1;
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         //filler, which pushes components up the top
         functionsPanel.add(new JPanel(), gbc);
+        gbc.gridy = 2;
+        gbc.gridx = 0;
+        gbc.weighty = 0.;
+        JButton paretBtn = new JButton("Paret");
+        paretBtn.addActionListener(e -> {
+            XYChart chart = new XYChartBuilder().width(800).height(600).title("Gaussian Blobs").xAxisTitle("f1")
+                                                .yAxisTitle("g").build();
+
+            // Customize Chart
+            chart.getStyler().setChartTitleVisible(false);
+            chart.getStyler().setDefaultSeriesRenderStyle(XYSeries.XYSeriesRenderStyle.Scatter);
+            chart.getStyler().setLegendPosition(Styler.LegendPosition.OutsideE);
+            chart.getStyler().setMarkerSize(4);
+            int maxSize = 30_000;
+            DoubleArrayList xList = new DoubleArrayList(maxSize);
+            DoubleArrayList yList = new DoubleArrayList(maxSize);
+
+            Random random = new Random();
+            for (int i = 0; i < maxSize; i++) {
+                float x1 = random.nextFloat();
+                float x2 = random.nextFloat();
+                float f1 = x1;
+                float g = 10 + x2;
+                double alfa = 0.25 + 3.75 * ((g - Paret.G_STAR_STAR) / (Paret.G_STAR - Paret.G_STAR_STAR));
+                double f1Slashg = f1 / g;
+                double h = pow(f1Slashg, alfa) - f1Slashg *
+                        sin(PI * Paret.F * f1 * g);
+
+
+                xList.add(f1);
+                yList.add(g * h);
+
+            }
+
+            chart.addSeries("Paret", xList.toArray(), yList.toArray());
+
+
+            new SwingWrapper<>(chart).displayChart();
+        });
+        functionsPanel.add(paretBtn, gbc);
 
         gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.FIRST_LINE_START;
@@ -172,17 +223,16 @@ public class FunctionsForm extends JFrame {
         //on axis apply button
         this.applyAxisButton.addActionListener(e -> {
             IntStream.range(0, this.spinners.size()).forEach(i -> {
-                Number number = (Number) this.spinners.get(i).getValue();
-                this.setters.get(i).accept(this.model, number.floatValue());
+                Float number = Float.parseFloat(this.spinners.get(i).getText());
+                this.setters.get(i).accept(this.model, number);
             });
             this.invalidateCanvas();
         });
     }
 
     private void invalidateCanvas() {
-        IntStream.range(0, this.spinners.size()).forEach(i -> {
-            this.spinners.get(i).setValue(this.getters.get(i).apply(this.model));
-        });
+        IntStream.range(0, this.spinners.size())
+                 .forEach(i -> this.spinners.get(i).setText(this.getters.get(i).apply(this.model).toString()));
 
         this.canvas.setModel(this.model);
         this.canvas.invalidate();

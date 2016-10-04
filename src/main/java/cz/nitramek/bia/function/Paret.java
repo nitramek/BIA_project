@@ -1,11 +1,11 @@
 package cz.nitramek.bia.function;
 
 
-public class ProtocolThree implements Function {
+public class Paret implements Function {
 
     public static final int G_STAR_STAR = 12;
     public static final int G_STAR = 11;
-    private static final double F = 1;
+    public static final double F = 1;
 
     @Override
     public double getValue(double... params) {
@@ -15,18 +15,40 @@ public class ProtocolThree implements Function {
         double alfa = 0.25 + 3.75 * ((g - G_STAR_STAR) / (G_STAR - G_STAR_STAR));
         double f1 = params[0];
         double f1Slashg = f1 / g;
-        double h = Math.pow(f1Slashg, alfa) - f1Slashg * Math
+        return Math.pow(f1Slashg, alfa) - f1Slashg * Math
                 .sin(Math.PI * F * f1 * g);
-        return h;
     }
+
+
+    @Override
+    public int getOptimalXMin() {
+        return 0;
+    }
+
+    @Override
+    public int getOptimalYMin() {
+        return 0;
+    }
+
+    @Override
+    public int getOptimalYMax() {
+        return 1;
+    }
+
 
     @Override
     public int getOptimalXMax() {
-        return 20;
+        return 1;
     }
 
     @Override
+    public double getOptimalZMin() {
+        return -0.1;
+    }
+
+
+    @Override
     public double getOptimalZMax() {
-        return 20;
+        return 0.1;
     }
 }
