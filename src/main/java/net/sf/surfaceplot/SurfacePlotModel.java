@@ -3,10 +3,15 @@ package net.sf.surfaceplot;/*
  * and open the template in the editor.
  */
 
+import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
+
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author salagarsamy
  */
-public interface ISurfacePlotModel {
+public interface SurfacePlotModel {
     int PLOT_MODE_WIREFRAME = 0;
     int PLOT_MODE_NORENDER = 1;
     int PLOT_MODE_SPECTRUM = 2;
@@ -16,6 +21,11 @@ public interface ISurfacePlotModel {
     int getPlotMode();
 
     float calculateZ(float x, float y);
+
+    default List<Point3DHolder> getExtraPoints(){
+        return Collections.emptyList();
+    }
+
 
     boolean isBoxed();
 

@@ -24,7 +24,10 @@ package net.sf.surfaceplot;/*---------------------------------------------------
  *                                                                                        *
  *----------------------------------------------------------------------------------------*/
 
+import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
+
 import java.awt.*;
+import java.util.Arrays;
 
 /**
  * The class <code>net.sf.surfaceplot.SurfaceCanvas</code> is responsible
@@ -37,12 +40,13 @@ public class SurfaceCanvas extends Canvas {
     // constants
     private static final int TOP = 0;
     private static final int CENTER = 1;
+    public static Color extraColor = Color.BLACK;
     private final int poly_x[] = new int[9];
     private final int poly_y[] = new int[9];
     protected String xAxisLabel = "X";
     protected String yAxisLabel = "Y";
     protected String zAxisLabel = "Z";
-    private ISurfacePlotModel model;              // the model
+    private SurfacePlotModel model;              // the model
     private Image bufferImage;                    // the backing buffer
     private Graphics bufferGraphics;               // the graphics context of backing buffer
     private boolean image_drawn;             // image drawn flag
@@ -83,6 +87,10 @@ public class SurfaceCanvas extends Canvas {
      *----------------------------------------------------------------------------------------*/
     private float color_factor;
     private Color line_color;
+    private int normalValuesSize;
+
+    private java.util.List<Point3DHolder> extraPoints;
+
 
     /**
      * The constructor of <code>net.sf.surfaceplot.SurfaceCanvas</code>
@@ -102,7 +110,7 @@ public class SurfaceCanvas extends Canvas {
      *
      * @param model The model provides data about the surface
      */
-    public SurfaceCanvas(ISurfacePlotModel model) {
+    public SurfaceCanvas(SurfacePlotModel model) {
         this();
         this.setModel(model);
     }
@@ -122,11 +130,11 @@ public class SurfaceCanvas extends Canvas {
                 && !values[3].isInvalid());
     }
 
-    public ISurfacePlotModel getModel() {
+    public SurfacePlotModel getModel() {
         return model;
     }
 
-    public void setModel(ISurfacePlotModel model) {
+    public void setModel(SurfacePlotModel model) {
         this.model = model;
         plot_mode = model.getPlotMode();
         isBoxed = model.isBoxed();
@@ -307,6 +315,7 @@ public class SurfaceCanvas extends Canvas {
     }
 
     private void renderSurface() {
+        this.extraPoints = this.model.getExtraPoints();
         float stepx, stepy, x, y, v;
         float xi, xx, yi, yx;
         float min, max;
@@ -325,7 +334,10 @@ public class SurfaceCanvas extends Canvas {
 
         stepx = (xx - xi) / calc_divisions;
         stepy = (yx - yi) / calc_divisions;
-
+        float stepz = (model.getZMax() - model.getZMin()) / calc_divisions;
+        Point3DHolder.xRangeTreshold  = stepx;
+        Point3DHolder.yRangeTreshold  = stepy;
+        Point3DHolder.zRangeTreshold  = stepz;
         total = (calc_divisions + 1) * (calc_divisions + 1);
 
         Point3D[] tmpVertices = new Point3D[total];
@@ -343,7 +355,6 @@ public class SurfaceCanvas extends Canvas {
 
         float xfactor = 20 / (xx - xi);
         float yfactor = 20 / (yx - yi);
-
         while (i <= calc_divisions) {
             while (j <= calc_divisions) {
                 v = model.calculateZ(x, y);
@@ -359,8 +370,10 @@ public class SurfaceCanvas extends Canvas {
                         }
                     }
                 }
-                tmpVertices[k] = new Point3D((x - xi) * xfactor - 10,
-                        (y - yi) * yfactor - 10, v);
+                float xNow = x - xi;
+                float yNow = y - yi;
+                tmpVertices[k] = new Point3D(xNow * xfactor - 10,
+                        yNow * yfactor - 10, v, areCloseToExtras(x, y, v));
                 j++;
                 y += stepy;
                 k++;
@@ -370,10 +383,19 @@ public class SurfaceCanvas extends Canvas {
             i++;
             x += stepx;
         }
+        this.extraPoints = this.model.getExtraPoints();
 
         setValuesArray(tmpVertices);
         setDataAvailability(true);
         repaint();
+    }
+
+    private boolean areCloseToExtras(float x, float y, float z) {
+        return this.extraPoints.stream()
+                               .filter(p -> p.isXCloseTo(x))
+                               .filter(p -> p.isYCloseTo(y))
+                               .filter(p -> p.isZCloseTo(z))
+                               .count() > 0;
     }
 
     /**
@@ -382,8 +404,6 @@ public class SurfaceCanvas extends Canvas {
      * flag. If no data is available, creates image of base plane and axes.
      *
      * @param g the graphics context to paint
-     * @see #setContour
-     * @see #setDensity
      * @see #setValuesArray
      * @see #setDataAvailability
      */
@@ -445,7 +465,7 @@ public class SurfaceCanvas extends Canvas {
                 Point3D.invalidate();
 
                 // surface plot
-                if (plot_mode == ISurfacePlotModel.PLOT_MODE_WIREFRAME)
+                if (plot_mode == SurfacePlotModel.PLOT_MODE_WIREFRAME)
                     plotWireframe();
                 else
                     plotSurface();
@@ -472,7 +492,7 @@ public class SurfaceCanvas extends Canvas {
                     Point3D.invalidate();
 
                     // surface plot
-                    if (plot_mode == ISurfacePlotModel.PLOT_MODE_WIREFRAME)
+                    if (plot_mode == SurfacePlotModel.PLOT_MODE_WIREFRAME)
                         plotWireframe();
                     else
                         plotSurface();
@@ -489,6 +509,7 @@ public class SurfaceCanvas extends Canvas {
             }
         }
     }
+
 
     /**
      * Updates image. Just call the <code>paint</code> method to
@@ -541,8 +562,8 @@ public class SurfaceCanvas extends Canvas {
         x[4] = x[0];
         y[4] = y[0];
 
-        if (plot_mode != ISurfacePlotModel.PLOT_MODE_WIREFRAME) {
-            if (plot_mode == ISurfacePlotModel.PLOT_MODE_NORENDER) {
+        if (plot_mode != SurfacePlotModel.PLOT_MODE_WIREFRAME) {
+            if (plot_mode == SurfacePlotModel.PLOT_MODE_NORENDER) {
                 g.setColor(Color.lightGray);
             } else {
                 g.setColor(new Color(192, 220, 192));
@@ -557,8 +578,7 @@ public class SurfaceCanvas extends Canvas {
      * Draws non-surface parts, i.e: bounding box, axis grids, axis ticks,
      * axis labels, base plane.
      *
-     * @param g         the graphics context to draw
-     * @param draw_axes if <code>true</code>, only draws base plane and z axis
+     * @param g the graphics context to draw
      */
     private void drawBoxGridsTicksLabels(Graphics g) {
         Point projection, tickpos;
@@ -609,8 +629,8 @@ public class SurfaceCanvas extends Canvas {
             x[4] = x[0];
             y[4] = y[0];
 
-            if (plot_mode != ISurfacePlotModel.PLOT_MODE_WIREFRAME) {
-                if (plot_mode == ISurfacePlotModel.PLOT_MODE_NORENDER) {
+            if (plot_mode != SurfacePlotModel.PLOT_MODE_WIREFRAME) {
+                if (plot_mode == SurfacePlotModel.PLOT_MODE_NORENDER) {
                     g.setColor(Color.lightGray);
                 } else {
                     g.setColor(new Color(192, 220, 192));
@@ -629,8 +649,8 @@ public class SurfaceCanvas extends Canvas {
             x[4] = x[0];
             y[4] = y[0];
 
-            if (plot_mode != ISurfacePlotModel.PLOT_MODE_WIREFRAME) {
-                if (plot_mode == ISurfacePlotModel.PLOT_MODE_NORENDER) {
+            if (plot_mode != SurfacePlotModel.PLOT_MODE_WIREFRAME) {
+                if (plot_mode == SurfacePlotModel.PLOT_MODE_NORENDER) {
                     g.setColor(Color.lightGray);
                 } else {
                     g.setColor(new Color(192, 220, 192));
@@ -952,6 +972,17 @@ public class SurfaceCanvas extends Canvas {
      * @param verticescount number of vertices to process
      */
     private void plotPlane(Point3D[] vertex, int verticescount) {
+        plotPlane(vertex, verticescount, false);
+    }
+
+    /**
+     * Plots a single plane
+     *
+     * @param vertex        vertices array of the plane
+     * @param verticescount number of vertices to process
+     * @param extra
+     */
+    private void plotPlane(Point3D[] vertex, int verticescount, boolean extra) {
         Point projection;
         int count, loop, index;
         float z, result;
@@ -1024,29 +1055,31 @@ public class SurfaceCanvas extends Canvas {
         }
         if (count > 0) {
             switch (plot_mode) {
-                case ISurfacePlotModel.PLOT_MODE_NORENDER:
+                case SurfacePlotModel.PLOT_MODE_NORENDER:
                     bufferGraphics.setColor(Color.lightGray);
                     break;
-                case ISurfacePlotModel.PLOT_MODE_SPECTRUM:
+                case SurfacePlotModel.PLOT_MODE_SPECTRUM:
                     z = 0.8f - (z / count - zmin) * color_factor;
                     bufferGraphics.setColor(Color.getHSBColor(z, 1.0f, 1.0f));
                     break;
-                case ISurfacePlotModel.PLOT_MODE_GRAYSCALE:
+                case SurfacePlotModel.PLOT_MODE_GRAYSCALE:
                     z = (z / count - zmin) * color_factor;
                     bufferGraphics.setColor(Color.getHSBColor(0, 0, z));
                     if (z < 0.3f) {
                         line_color = new Color(0.6f, 0.6f, 0.6f);
                     }
                     break;
-                case ISurfacePlotModel.PLOT_MODE_DUALSHADE:
+                case SurfacePlotModel.PLOT_MODE_DUALSHADE:
                     z = (z / count - zmin) * color_factor + 0.4f;
                     bufferGraphics.setColor(Color.getHSBColor(color, 0.7f, z));
                     break;
             }
-
+            if (extra) {
+                bufferGraphics.setColor(SurfaceCanvas.extraColor);
+            }
             bufferGraphics.fillPolygon(poly_x, poly_y, count);
             bufferGraphics.setColor(line_color);
-            if (isMesh || (plot_mode == ISurfacePlotModel.PLOT_MODE_NORENDER)) {
+            if (isMesh || (plot_mode == SurfacePlotModel.PLOT_MODE_NORENDER)) {
                 poly_x[count] = poly_x[0];
                 poly_y[count] = poly_y[0];
                 count++;
@@ -1086,11 +1119,11 @@ public class SurfaceCanvas extends Canvas {
                 values1[1] = vertex[lx + sx + ly];
                 values1[3] = values1[2];
                 values1[2] = vertex[lx + sx + ly + sy];
-                if (plot_mode == ISurfacePlotModel.PLOT_MODE_DUALSHADE) {
+                if (plot_mode == SurfacePlotModel.PLOT_MODE_DUALSHADE) {
                     color = 0.2f;
                 }
                 if (isPointsValid(values1)) {
-                    plotPlane(values1, 4);
+                    plotPlane(values1, 4, Arrays.stream(values1).allMatch(Point3D::isMarked));
                 }
                 lx += sx;
             }
@@ -1118,7 +1151,7 @@ public class SurfaceCanvas extends Canvas {
         zmin = zi;
         zmax = zx;
         color_factor = 0.8f / (zmax - zmin);
-        if (plot_mode == ISurfacePlotModel.PLOT_MODE_DUALSHADE) {
+        if (plot_mode == SurfacePlotModel.PLOT_MODE_DUALSHADE) {
             color_factor *= 0.6f / 0.8f;
         }
 
@@ -1164,6 +1197,7 @@ public class SurfaceCanvas extends Canvas {
             end_ly = 0;
             sy = -multiple_factor;
         }
+
 
         if ((cop.x > 10) || (cop.x < -10)) {
             if ((cop.y > 10) || (cop.y < -10)) {

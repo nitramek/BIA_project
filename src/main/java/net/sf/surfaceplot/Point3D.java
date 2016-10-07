@@ -24,6 +24,8 @@ package net.sf.surfaceplot;/*---------------------------------------------------
  *                                                                                        *
  *----------------------------------------------------------------------------------------*/
 
+import lombok.Getter;
+
 import java.awt.*;
 
 /**
@@ -49,6 +51,8 @@ public final class Point3D {
      * The z coordinate
      */
     public float z;
+    @Getter
+    private final boolean marked;
     private Point projection;
     private int project_index;
 
@@ -62,10 +66,24 @@ public final class Point3D {
      */
 
     Point3D(float ix, float iy, float iz) {
+        this(ix, iy, iz, false);
+    }
+
+    /**
+     * The constructor of <code>SurfaceVertex</code>.
+     * The x and y coordinated must be in normalized form, i.e: in the range -10 .. +10.
+     *  @param ix the x coordinate
+     * @param iy the y coordinate
+     * @param iz the z coordinate
+     * @param marked
+     */
+
+    Point3D(float ix, float iy, float iz, boolean marked) {
         x = ix;
         y = iy;
         z = iz;
         project_index = master_project_index - 1;
+        this.marked = marked;
     }
 
     /**

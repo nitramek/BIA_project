@@ -6,14 +6,14 @@ package net.sf.surfaceplot;/*
 /**
  * @author salagarsamy
  */
-public class ExampleSurfaceModel implements ISurfacePlotModel {
+public class ExampleSurfaceModel implements SurfacePlotModel {
 
     public float calculateZ(float x, float y) {
         return (float) (x * Math.sin(y));
     }
 
     public int getPlotMode() {
-        return ISurfacePlotModel.PLOT_MODE_SPECTRUM;
+        return SurfacePlotModel.PLOT_MODE_SPECTRUM;
     }
 
     public boolean isBoxed() {

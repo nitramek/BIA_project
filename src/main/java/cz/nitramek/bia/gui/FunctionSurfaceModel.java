@@ -1,13 +1,17 @@
 package cz.nitramek.bia.gui;
 
+import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 import cz.nitramek.bia.function.Function;
 import lombok.Setter;
 import lombok.ToString;
-import net.sf.surfaceplot.ISurfacePlotModel;
+import net.sf.surfaceplot.SurfacePlotModel;
+
+import java.util.Collections;
+import java.util.List;
 
 
 @ToString
-public class FunctionSurfaceModel implements ISurfacePlotModel {
+public class FunctionSurfaceModel implements SurfacePlotModel {
 
     @Setter
     private float xMin;
@@ -33,11 +37,19 @@ public class FunctionSurfaceModel implements ISurfacePlotModel {
         this.yMax = this.function.getOptimalYMax();
         this.zMin = (float) this.function.getOptimalZMin();
         this.zMax = (float) this.function.getOptimalZMax();
+
     }
 
     @Override
+    public List<Point3DHolder> getExtraPoints() {
+        Point3DHolder point = new Point3DHolder(0.f, 0.f, 0.f);
+        return Collections.singletonList(point);
+    }
+
+
+    @Override
     public int getPlotMode() {
-        return ISurfacePlotModel.PLOT_MODE_SPECTRUM;
+        return SurfacePlotModel.PLOT_MODE_SPECTRUM;
     }
 
     @Override
