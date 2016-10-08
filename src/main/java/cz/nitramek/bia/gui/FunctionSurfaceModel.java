@@ -49,19 +49,15 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
 
     @Override
     public List<Point3DHolder> getExtraPoints() {
-
-        List<Point3DHolder> points = this.algorithm.getGeneration().stream()
-                                                    .map(this::fromIndividual)
-                                                    .collect(Collectors.toList());
-
-        return points;
+        return this.algorithm.getGeneration().stream()
+                             .map(this::fromIndividual)
+                             .collect(Collectors.toList());
     }
 
     private Point3DHolder fromIndividual(Individual i) {
         double x = i.getParameters()[0];
         double y = i.getParameters()[1];
-        double z = this.evaluatingFunction.getValue(i.getParameters());
-        return new Point3DHolder(x, y, z);
+        return new Point3DHolder(x, y, 0);
     }
 
     @Override

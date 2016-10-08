@@ -45,7 +45,7 @@ public abstract class Algorithm {
     public Algorithm(List<Pair<Double, Double>> boundaries, int generationSize) {
         this.generationSize = generationSize;
         Random random = new Random();
-        this.generation = IntStream.rangeClosed(0, generationSize)
+        this.generation = IntStream.range(0, generationSize)
                                    .mapToObj(i -> new Individual(generateParameters(boundaries, random)))
                                    .collect(Collectors.toList());
     }

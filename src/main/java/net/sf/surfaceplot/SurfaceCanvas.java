@@ -27,6 +27,7 @@ package net.sf.surfaceplot;/*---------------------------------------------------
 import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 
 import java.awt.*;
+import java.awt.geom.Path2D;
 import java.util.Arrays;
 
 /**
@@ -315,7 +316,7 @@ public class SurfaceCanvas extends Canvas {
     }
 
     private void renderSurface() {
-        this.extraPoints = this.model.getExtraPoints();
+
         float stepx, stepy, x, y, v;
         float xi, xx, yi, yx;
         float min, max;
@@ -334,10 +335,7 @@ public class SurfaceCanvas extends Canvas {
 
         stepx = (xx - xi) / calc_divisions;
         stepy = (yx - yi) / calc_divisions;
-        float stepz = (model.getZMax() - model.getZMin()) / calc_divisions;
-        Point3DHolder.xRangeThreshold = stepx * 1;
-        Point3DHolder.yRangeThreshold = stepy * 1;
-        Point3DHolder.zRangeThreshold = stepz * 1.3f;
+
         total = (calc_divisions + 1) * (calc_divisions + 1);
 
         Point3D[] tmpVertices = new Point3D[total];
@@ -355,6 +353,11 @@ public class SurfaceCanvas extends Canvas {
 
         float xfactor = 20 / (xx - xi);
         float yfactor = 20 / (yx - yi);
+
+        this.extraPoints = this.model.getExtraPoints();
+
+        Point3DHolder.xRangeThreshold = (float) Math.sqrt(stepx * stepx + stepy * stepy);
+//        this.extraPoints.replaceAll(p -> new Point3DHolder(p.x * xfactor - 10, p.y * yfactor - 10));
         while (i <= calc_divisions) {
             while (j <= calc_divisions) {
                 v = model.calculateZ(x, y);
@@ -370,10 +373,10 @@ public class SurfaceCanvas extends Canvas {
                         }
                     }
                 }
-                float xNow = x - xi;
-                float yNow = y - yi;
-                tmpVertices[k] = new Point3D(xNow * xfactor - 10,
-                        yNow * yfactor - 10, v, areCloseToExtras(x, y, v));
+                float xNow = (x - xi) * xfactor - 10;
+                float yNow = (y - yi) * yfactor - 10;
+                tmpVertices[k] = new Point3D(xNow,
+                        yNow, v, areCloseToExtras(x, y));
                 j++;
                 y += stepy;
                 k++;
@@ -385,16 +388,16 @@ public class SurfaceCanvas extends Canvas {
         }
 
         setValuesArray(tmpVertices);
+
         setDataAvailability(true);
         repaint();
     }
 
-    private boolean areCloseToExtras(float x, float y, float z) {
-        return this.extraPoints.stream()
-                               .filter(p -> p.isXCloseTo(x))
-                               .filter(p -> p.isYCloseTo(y))
-                               .filter(p -> p.isZCloseTo(z))
-                               .count() > 0;
+    private boolean areCloseToExtras(float x, float y) {
+        long pointsClose = this.extraPoints.stream()
+                                     .filter(p -> p.isClose(x, y))
+                                     .count();
+        return pointsClose > 0;
     }
 
     /**
@@ -971,23 +974,22 @@ public class SurfaceCanvas extends Canvas {
      * @param verticescount number of vertices to process
      */
     private void plotPlane(Point3D[] vertex, int verticescount) {
-        plotPlane(vertex, verticescount, false);
-    }
-
-    /**
-     * Plots a single plane
-     *
-     * @param vertex        vertices array of the plane
-     * @param verticescount number of vertices to process
-     * @param extra
-     */
-    private void plotPlane(Point3D[] vertex, int verticescount, boolean extra) {
         Point projection;
         int count, loop, index;
         float z, result;
         boolean low1, low2;
         boolean valid1, valid2;
 
+        Path2D path = new Path2D.Double();
+
+//        path.moveTo(vertex[0].x, vertex[0].y);
+//        for(int i = 1; i < vertex.length; ++i) {
+//            path.lineTo(vertex[i].x, vertex[i].y);
+//        }
+//        path.closePath();
+
+//        boolean extra = this.extraPoints.stream().anyMatch(p -> path.contains(p.x, p.y));
+        boolean extra = Arrays.stream(vertex).allMatch(Point3D::isMarked);
         if (verticescount < 3) {
             return;
         }
@@ -1122,7 +1124,7 @@ public class SurfaceCanvas extends Canvas {
                     color = 0.2f;
                 }
                 if (isPointsValid(values1)) {
-                    plotPlane(values1, 4, Arrays.stream(values1).allMatch(Point3D::isMarked));
+                    plotPlane(values1, 4);
                 }
                 lx += sx;
             }

@@ -13,6 +13,9 @@ public final class Util {
     public static double square(double x) {
         return Math.pow(x, 2);
     }
+    public static float square(float x) {
+        return (float) Math.pow(x, 2);
+    }
 
     public static DoublePredicate eq(double number) {
         return x -> x == number;
