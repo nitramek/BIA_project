@@ -53,6 +53,7 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
         List<Point3DHolder> points = this.algorithm.getGeneration().stream()
                                                     .map(this::fromIndividual)
                                                     .collect(Collectors.toList());
+
         return points;
     }
 
