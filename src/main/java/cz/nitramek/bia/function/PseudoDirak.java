@@ -2,7 +2,7 @@ package cz.nitramek.bia.function;
 
 
 //TODO?
-public class PseudoDirak implements Function {
+public class PseudoDirak implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int dimension = params.length;

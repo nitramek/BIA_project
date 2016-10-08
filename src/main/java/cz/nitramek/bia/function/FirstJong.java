@@ -5,7 +5,7 @@ import cz.nitramek.bia.cz.nitramek.bia.util.Util;
 
 import java.util.Arrays;
 
-public class FirstJong implements Function {
+public class FirstJong implements EvaluatingFunction {
 
     @Override
     public double getValue(double... params) {

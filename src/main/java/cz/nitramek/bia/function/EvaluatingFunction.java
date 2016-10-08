@@ -8,7 +8,7 @@ import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-public interface Function {
+public interface EvaluatingFunction {
     static double calculateSumForTwo(double[] params, BiDoubleFunction function) {
         return IntStream.rangeClosed(1, params.length - 1).mapToDouble(i -> function.apply(params[i - 1], params[i]))
                         .sum();

@@ -5,7 +5,7 @@ import java.util.Arrays;
 import static java.lang.Math.*;
 
 //TODo
-public class AckleyOne implements Function {
+public class AckleyOne implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int dimension = params.length;
@@ -23,7 +23,7 @@ public class AckleyOne implements Function {
                 return -7.54276 - 2.91867 * (dimension - 3);
             }
         }
-        return Function.calculateSumForTwo(params, this::calculateSingle);
+        return EvaluatingFunction.calculateSumForTwo(params, this::calculateSingle);
     }
 
     private double calculateSingle(double xi, double xi_1) {

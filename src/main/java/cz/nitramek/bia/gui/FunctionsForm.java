@@ -2,7 +2,7 @@ package cz.nitramek.bia.gui;
 
 
 import com.carrotsearch.hppc.DoubleArrayList;
-import cz.nitramek.bia.function.Function;
+import cz.nitramek.bia.function.EvaluatingFunction;
 import cz.nitramek.bia.function.Paret;
 import lombok.val;
 import net.sf.surfaceplot.SurfaceCanvas;
@@ -29,7 +29,7 @@ public class FunctionsForm extends JFrame {
 
     private final SurfaceCanvas canvas;
     private JButton applyAxisButton;
-    private JComboBox<ComboItem<Function>> comboBox;
+    private JComboBox<ComboItem<EvaluatingFunction>> comboBox;
     private FunctionSurfaceModel model;
 
 
@@ -66,9 +66,9 @@ public class FunctionsForm extends JFrame {
         this.setupListeners();
     }
 
-    public static Function createFunction(Class<?> function) {
+    public static EvaluatingFunction createFunction(Class<?> function) {
         try {
-            return (Function) function.newInstance();
+            return (EvaluatingFunction) function.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -214,10 +214,10 @@ public class FunctionsForm extends JFrame {
     private void setupListeners() {
         //change function on change in combo box
         this.comboBox.addActionListener(e -> {
-            ComboBoxModel<ComboItem<Function>> model = this.comboBox.getModel();
-            ComboItem<Function> comboItem = model.getElementAt(this.comboBox.getSelectedIndex());
-            Function function = comboItem.getItem();
-            this.model = new FunctionSurfaceModel(function);
+            ComboBoxModel<ComboItem<EvaluatingFunction>> model = this.comboBox.getModel();
+            ComboItem<EvaluatingFunction> comboItem = model.getElementAt(this.comboBox.getSelectedIndex());
+            EvaluatingFunction evaluatingFunction = comboItem.getItem();
+            this.model = new FunctionSurfaceModel(evaluatingFunction);
             this.invalidateCanvas();
         });
         //on axis apply button

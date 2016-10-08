@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 import static java.lang.Math.*;
 
-public class Schwefel implements Function {
+public class Schwefel implements EvaluatingFunction {
 
     @Override
     public double getValue(double... params) {

@@ -5,13 +5,13 @@ import java.util.Arrays;
 import static java.lang.Math.*;
 
 
-public class AckleyTwo implements Function {
+public class AckleyTwo implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         if (Arrays.stream(params).allMatch(x -> x == 0)) {
             return 0;
         } else {
-            return Function.calculateSumForTwo(params, this::calculateSingle);
+            return EvaluatingFunction.calculateSumForTwo(params, this::calculateSingle);
         }
 
     }

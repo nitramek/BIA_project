@@ -5,12 +5,12 @@ import java.util.function.DoubleUnaryOperator;
 import static java.lang.Math.*;
 
 
-public class Rana implements Function {
+public class Rana implements EvaluatingFunction {
     private static DoubleUnaryOperator sqrtAbs = x -> sqrt(abs(x));
 
     @Override
     public double getValue(double... params) {
-        return Function.calculateSumForTwo(params, (xi, xi_1) -> {
+        return EvaluatingFunction.calculateSumForTwo(params, (xi, xi_1) -> {
             double minusXi = sqrtAbs.applyAsDouble(xi_1 + 1 - xi);
             double plusXi = sqrtAbs.applyAsDouble(xi_1 + 1 + xi);
             return xi * sin(minusXi) * cos(plusXi) + (xi_1 + 1) * cos(minusXi) * sin(plusXi);

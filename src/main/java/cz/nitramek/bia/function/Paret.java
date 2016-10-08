@@ -1,7 +1,7 @@
 package cz.nitramek.bia.function;
 
 
-public class Paret implements Function {
+public class Paret implements EvaluatingFunction {
 
     public static final int G_STAR_STAR = 12;
     public static final int G_STAR = 11;

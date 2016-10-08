@@ -1,7 +1,7 @@
 package cz.nitramek.bia.gui;
 
 import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
-import cz.nitramek.bia.function.Function;
+import cz.nitramek.bia.function.EvaluatingFunction;
 import lombok.Setter;
 import lombok.ToString;
 import net.sf.surfaceplot.SurfacePlotModel;
@@ -26,17 +26,17 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
     @Setter
     private float zMax;
 
-    private Function function;
+    private EvaluatingFunction evaluatingFunction;
 
 
-    public FunctionSurfaceModel(Function function) {
-        this.function = function;
-        this.xMin = this.function.getOptimalXMin();
-        this.xMax = this.function.getOptimalXMax();
-        this.yMin = this.function.getOptimalYMin();
-        this.yMax = this.function.getOptimalYMax();
-        this.zMin = (float) this.function.getOptimalZMin();
-        this.zMax = (float) this.function.getOptimalZMax();
+    public FunctionSurfaceModel(EvaluatingFunction evaluatingFunction) {
+        this.evaluatingFunction = evaluatingFunction;
+        this.xMin = this.evaluatingFunction.getOptimalXMin();
+        this.xMax = this.evaluatingFunction.getOptimalXMax();
+        this.yMin = this.evaluatingFunction.getOptimalYMin();
+        this.yMax = this.evaluatingFunction.getOptimalYMax();
+        this.zMin = (float) this.evaluatingFunction.getOptimalZMin();
+        this.zMax = (float) this.evaluatingFunction.getOptimalZMax();
 
     }
 
@@ -54,7 +54,7 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
 
     @Override
     public float calculateZ(float x, float y) {
-        return (float) this.function.getValue(x, y);
+        return (float) this.evaluatingFunction.getValue(x, y);
     }
 
     @Override
@@ -143,7 +143,7 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
     }
 
 
-    public void setFunction(Function function) {
-        this.function = function;
+    public void setEvaluatingFunction(EvaluatingFunction evaluatingFunction) {
+        this.evaluatingFunction = evaluatingFunction;
     }
 }

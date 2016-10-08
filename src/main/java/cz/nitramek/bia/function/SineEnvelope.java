@@ -5,11 +5,11 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sin;
 
 //TODO ověřit
-public class SineEnvelope implements Function {
+public class SineEnvelope implements EvaluatingFunction {
 
     @Override
     public double getValue(double... params) {
-        return -Function.calculateSumForTwo(params, (xi, xi_1) -> {
+        return -EvaluatingFunction.calculateSumForTwo(params, (xi, xi_1) -> {
             double xi_pow2 = pow(xi, 2);
             double xi_1_pow2 = pow(xi_1, 2);
             double topSide = sin(pow(xi_pow2 + xi_1_pow2 - 0.5, 2));

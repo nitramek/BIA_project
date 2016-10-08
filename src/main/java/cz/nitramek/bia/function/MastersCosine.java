@@ -7,14 +7,14 @@ import java.util.Arrays;
 import static java.lang.Math.*;
 
 
-public class MastersCosine implements Function {
+public class MastersCosine implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int dimension = params.length;
         if (Arrays.stream(params).allMatch(Util.eq(0))) {
             return -1 * dimension;
         }
-        return Function.calculateSumForTwo(params, (xi, xi_1) -> {
+        return EvaluatingFunction.calculateSumForTwo(params, (xi, xi_1) -> {
             double xi_12 = pow(xi_1, 2);
             double xi2 = pow(xi, 2);
             double half = 0.5 * xi * xi_1;

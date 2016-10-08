@@ -5,10 +5,10 @@ import static java.lang.Math.abs;
 import static java.lang.Math.sqrt;
 import static java.lang.StrictMath.sin;
 
-public class EggHolder implements Function {
+public class EggHolder implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
-        return Function.calculateSumForTwo(params, this::calculateSingle);
+        return EvaluatingFunction.calculateSumForTwo(params, this::calculateSingle);
     }
 
     private double calculateSingle(double xi, double xi_1) {

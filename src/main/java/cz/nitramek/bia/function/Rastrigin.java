@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import static java.lang.Math.*;
 
-public class Rastrigin implements Function {
+public class Rastrigin implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int dimension = params.length;

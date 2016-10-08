@@ -3,7 +3,7 @@ package cz.nitramek.bia.function;
 
 import java.util.Arrays;
 
-public class ThirdJong implements Function {
+public class ThirdJong implements EvaluatingFunction {
 
     @Override
     public double getValue(double... params) {

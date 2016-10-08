@@ -7,7 +7,7 @@ import java.util.Arrays;
 import static java.lang.Math.*;
 
 
-public class Michalewicz implements Function {
+public class Michalewicz implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int dimension = params.length;
@@ -18,7 +18,7 @@ public class Michalewicz implements Function {
         } else if (dimension > 2 && params[0] == 2.20291 && Arrays.stream(params).allMatch(Util.eq(1.57104))) {
             return 1.00098 * (dimension - 2);
         }
-        return Function.calculateSumForTwo(params, (xi, xi_1) -> {
+        return EvaluatingFunction.calculateSumForTwo(params, (xi, xi_1) -> {
             double other = sin(xi) * sin(pow(pow(xi, 2) / PI, 20) + sin(xi_1) * sin(pow(2 * pow(xi, 2) / PI, 20)));
             return -1 * (other);
         });

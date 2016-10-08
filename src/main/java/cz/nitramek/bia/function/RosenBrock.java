@@ -8,7 +8,7 @@ import java.util.stream.IntStream;
 import static java.lang.Math.*;
 
 
-public class RosenBrock implements Function {
+public class RosenBrock implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int dimension = params.length;

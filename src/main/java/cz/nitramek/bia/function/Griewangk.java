@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import static java.lang.Math.*;
 
-public class Griewangk implements Function {
+public class Griewangk implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         if (Arrays.stream(params).sum() == 0.0) {

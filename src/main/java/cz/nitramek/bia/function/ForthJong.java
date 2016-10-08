@@ -3,7 +3,7 @@ package cz.nitramek.bia.function;
 
 import java.util.stream.IntStream;
 
-public class ForthJong implements Function {
+public class ForthJong implements EvaluatingFunction {
     @Override
     public double getValue(double... params) {
         int length = params.length;

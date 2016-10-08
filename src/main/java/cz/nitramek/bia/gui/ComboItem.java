@@ -1,6 +1,8 @@
 package cz.nitramek.bia.gui;
 
 
+import cz.nitramek.bia.function.EvaluatingFunction;
+
 import java.util.function.Function;
 
 public class ComboItem<E> {
@@ -16,9 +18,9 @@ public class ComboItem<E> {
         return new ComboItem<>(item, strFunction.apply(item));
     }
 
-    public static ComboItem<cz.nitramek.bia.function.Function> createComboItem(cz.nitramek.bia.function.Function
-                                                                                       function) {
-        return createComboItem(function, cz.nitramek.bia.function.Function::getName);
+    public static ComboItem<EvaluatingFunction> createComboItem(EvaluatingFunction
+                                                                        evaluatingFunction) {
+        return createComboItem(evaluatingFunction, EvaluatingFunction::getName);
     }
 
     public E getItem() {
