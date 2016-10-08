@@ -1,17 +1,23 @@
 package cz.nitramek.bia.gui;
 
+import cz.nitramek.bia.computation.Algorithm;
+import cz.nitramek.bia.computation.FunctionAlgorithm;
+import cz.nitramek.bia.computation.Individual;
 import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 import cz.nitramek.bia.function.EvaluatingFunction;
 import lombok.Setter;
 import lombok.ToString;
 import net.sf.surfaceplot.SurfacePlotModel;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @ToString
 public class FunctionSurfaceModel implements SurfacePlotModel {
+
+    @Setter
+    private Algorithm algorithm;
 
     @Setter
     private float xMin;
@@ -30,6 +36,7 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
 
 
     public FunctionSurfaceModel(EvaluatingFunction evaluatingFunction) {
+        this.algorithm = FunctionAlgorithm.create(evaluatingFunction, 10);
         this.evaluatingFunction = evaluatingFunction;
         this.xMin = this.evaluatingFunction.getOptimalXMin();
         this.xMax = this.evaluatingFunction.getOptimalXMax();
@@ -42,10 +49,19 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
 
     @Override
     public List<Point3DHolder> getExtraPoints() {
-        Point3DHolder point = new Point3DHolder(0.f, 0.f, 0.f);
-        return Collections.singletonList(point);
+
+        List<Point3DHolder> points = this.algorithm.getGeneration().stream()
+                                                    .map(this::fromIndividual)
+                                                    .collect(Collectors.toList());
+        return points;
     }
 
+    private Point3DHolder fromIndividual(Individual i) {
+        double x = i.getParameters()[0];
+        double y = i.getParameters()[1];
+        double z = this.evaluatingFunction.getValue(i.getParameters());
+        return new Point3DHolder(x, y, z);
+    }
 
     @Override
     public int getPlotMode() {
@@ -142,8 +158,4 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
         return "Z";
     }
 
-
-    public void setEvaluatingFunction(EvaluatingFunction evaluatingFunction) {
-        this.evaluatingFunction = evaluatingFunction;
-    }
 }

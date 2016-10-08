@@ -335,9 +335,9 @@ public class SurfaceCanvas extends Canvas {
         stepx = (xx - xi) / calc_divisions;
         stepy = (yx - yi) / calc_divisions;
         float stepz = (model.getZMax() - model.getZMin()) / calc_divisions;
-        Point3DHolder.xRangeTreshold  = stepx;
-        Point3DHolder.yRangeTreshold  = stepy;
-        Point3DHolder.zRangeTreshold  = stepz;
+        Point3DHolder.xRangeTreshold  = stepx * 1;
+        Point3DHolder.yRangeTreshold  = stepy * 1;
+        Point3DHolder.zRangeTreshold  = stepz * 1;
         total = (calc_divisions + 1) * (calc_divisions + 1);
 
         Point3D[] tmpVertices = new Point3D[total];
@@ -383,7 +383,6 @@ public class SurfaceCanvas extends Canvas {
             i++;
             x += stepx;
         }
-        this.extraPoints = this.model.getExtraPoints();
 
         setValuesArray(tmpVertices);
         setDataAvailability(true);

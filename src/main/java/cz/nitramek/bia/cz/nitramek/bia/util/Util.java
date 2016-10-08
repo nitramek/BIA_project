@@ -2,6 +2,7 @@ package cz.nitramek.bia.cz.nitramek.bia.util;
 
 
 import java.util.function.DoublePredicate;
+import java.util.function.Supplier;
 
 public final class Util {
     /**
@@ -15,6 +16,10 @@ public final class Util {
 
     public static DoublePredicate eq(double number) {
         return x -> x == number;
+    }
+
+    public static Supplier<RuntimeException> exceptionMessage(String message){
+        return () -> new RuntimeException(message);
     }
 
 }
