@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 
-public abstract class Algorithm {
+public class Algorithm {
 
     @Getter
     private final int generationSize;
@@ -35,7 +35,7 @@ public abstract class Algorithm {
 
     @Setter
     @NonNull
-    private Function<Individual, Individual> manipulation;
+    private Function<Individual, Individual> manipulation = Function.identity();
 
     /**
      * Randomly generates parameters according to boundaries size / 2

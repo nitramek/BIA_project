@@ -317,23 +317,23 @@ public class SurfaceCanvas extends Canvas {
     private void renderSurface() {
 
         float stepx, stepy, x, y, v;
-        float xi, xx, yi, yx;
+        float x_min, x_max, y_min, y_max;
         float min, max;
         boolean f1, f2;
         int i, j, k, total;
 
-        xi = model.getXMin();
-        yi = model.getYMin();
-        xx = model.getXMax();
-        yx = model.getYMax();
+        x_min = model.getXMin();
+        y_min = model.getYMin();
+        x_max = model.getXMax();
+        y_max = model.getYMax();
 
-        setRanges(xi, xx, yi, yx);
+        setRanges(x_min, x_max, y_min, y_max);
 
         calc_divisions = model.getCalcDivisions();
         setDataAvailability(false);
 
-        stepx = (xx - xi) / calc_divisions;
-        stepy = (yx - yi) / calc_divisions;
+        stepx = (x_max - x_min) / calc_divisions;
+        stepy = (y_max - y_min) / calc_divisions;
 
         total = (calc_divisions + 1) * (calc_divisions + 1);
 
@@ -347,11 +347,11 @@ public class SurfaceCanvas extends Canvas {
         i = 0;
         j = 0;
         k = 0;
-        x = xi;
-        y = yi;
+        x = x_min;
+        y = y_min;
 
-        float xfactor = 20 / (xx - xi);
-        float yfactor = 20 / (yx - yi);
+        float xfactor = 20 / (x_max - x_min);
+        float yfactor = 20 / (y_max - y_min);
 
         this.extraPoints = this.model.getExtraPoints();
 
@@ -372,17 +372,17 @@ public class SurfaceCanvas extends Canvas {
                         }
                     }
                 }
-                float xNow = (x - xi) * xfactor - 10;
-                float yNow = (y - yi) * yfactor - 10;
+                float xNow = (x - x_min) * xfactor - 10;
+                float yNow = (y - y_min) * yfactor - 10;
                 tmpVertices[k] = new Point3D(xNow,
-                        yNow, v, areCloseToExtras(x, y));
+                        yNow, v);
                 tmpVertices[k].setOriginal(new Point3DHolder(x, y));
                 j++;
                 y += stepy;
                 k++;
             }
             j = 0;
-            y = yi;
+            y = y_min;
             i++;
             x += stepx;
         }

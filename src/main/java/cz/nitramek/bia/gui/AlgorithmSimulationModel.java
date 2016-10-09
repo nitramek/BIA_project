@@ -1,22 +1,24 @@
 package cz.nitramek.bia.gui;
 
 import cz.nitramek.bia.computation.Algorithm;
-import cz.nitramek.bia.computation.FunctionAlgorithm;
 import cz.nitramek.bia.computation.Individual;
 import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 import cz.nitramek.bia.function.EvaluatingFunction;
+import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import net.sf.surfaceplot.SurfacePlotModel;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @ToString
-public class FunctionSurfaceModel implements SurfacePlotModel {
+public class AlgorithmSimulationModel implements SurfacePlotModel {
 
     @Setter
+    @Getter
     private Algorithm algorithm;
 
     @Setter
@@ -32,11 +34,21 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
     @Setter
     private float zMax;
 
+    @Getter
     private EvaluatingFunction evaluatingFunction;
 
+    public AlgorithmSimulationModel(EvaluatingFunction evaluatingFunction, Algorithm algorithm) {
+        this.algorithm = algorithm;
+        this.evaluatingFunction = evaluatingFunction;
+        this.xMin = this.evaluatingFunction.getOptimalXMin();
+        this.xMax = this.evaluatingFunction.getOptimalXMax();
+        this.yMin = this.evaluatingFunction.getOptimalYMin();
+        this.yMax = this.evaluatingFunction.getOptimalYMax();
+        this.zMin = (float) this.evaluatingFunction.getOptimalZMin();
+        this.zMax = (float) this.evaluatingFunction.getOptimalZMax();
+    }
 
-    public FunctionSurfaceModel(EvaluatingFunction evaluatingFunction) {
-        this.algorithm = FunctionAlgorithm.create(evaluatingFunction, 10);
+    public AlgorithmSimulationModel(EvaluatingFunction evaluatingFunction) {
         this.evaluatingFunction = evaluatingFunction;
         this.xMin = this.evaluatingFunction.getOptimalXMin();
         this.xMax = this.evaluatingFunction.getOptimalXMax();
@@ -49,9 +61,13 @@ public class FunctionSurfaceModel implements SurfacePlotModel {
 
     @Override
     public List<Point3DHolder> getExtraPoints() {
-        return this.algorithm.getGeneration().stream()
-                             .map(this::fromIndividual)
-                             .collect(Collectors.toList());
+        if(this.algorithm == null){
+            return Collections.emptyList();
+        }else{
+            return this.algorithm.getGeneration().stream()
+                          .map(this::fromIndividual)
+                          .collect(Collectors.toList());
+        }
     }
 
     private Point3DHolder fromIndividual(Individual i) {
