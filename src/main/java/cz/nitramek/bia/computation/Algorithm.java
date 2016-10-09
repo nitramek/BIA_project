@@ -18,6 +18,7 @@ import java.util.stream.IntStream;
 
 public class Algorithm {
 
+    private final List<Pair<Double, Double>> boundaries;
     @Getter
     private final int generationSize;
 
@@ -43,6 +44,7 @@ public class Algorithm {
      * @param boundaries first number is
      */
     public Algorithm(List<Pair<Double, Double>> boundaries, int generationSize) {
+        this.boundaries = boundaries;
         this.generationSize = generationSize;
         Random random = new Random();
         this.generation = IntStream.range(0, generationSize)
@@ -62,7 +64,24 @@ public class Algorithm {
 
     public void advance() {
         this.generation.replaceAll(manipulation::apply);
+        this.generation.forEach(this::checkBoundaries);
         generationIndex++;
+    }
+
+    private void checkBoundaries(Individual individual){
+        double[] parameters = individual.getParameters();
+        for (int i = 0; i < parameters.length; i++) {
+            double p = parameters[i];
+            Double minimum = this.boundaries.get(i).getKey();
+            Double maximum = this.boundaries.get(i).getValue();
+            if(p < minimum){
+                p+=minimum;
+            }
+            if(p > maximum){
+                p-= maximum;
+            }
+            parameters[i] = p;
+        }
     }
 
     public void setManupulations(List<Function<Individual, Individual>> manipulations) {
