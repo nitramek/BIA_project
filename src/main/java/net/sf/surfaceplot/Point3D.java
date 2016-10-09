@@ -24,7 +24,9 @@ package net.sf.surfaceplot;/*---------------------------------------------------
  *                                                                                        *
  *----------------------------------------------------------------------------------------*/
 
+import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.awt.*;
 
@@ -51,10 +53,16 @@ public final class Point3D {
      * The z coordinate
      */
     public float z;
-    @Getter
-    private final boolean marked;
+
     private Point projection;
     private int project_index;
+
+    @Getter
+    private final boolean marked;
+
+    @Getter
+    @Setter
+    private Point3DHolder original;
 
     /**
      * The constructor of <code>SurfaceVertex</code>.
@@ -85,6 +93,8 @@ public final class Point3D {
         project_index = master_project_index - 1;
         this.marked = marked;
     }
+
+
 
     /**
      * Invalidates all vertices. This will force the projector

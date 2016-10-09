@@ -28,7 +28,6 @@ import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 
 import java.awt.*;
 import java.awt.geom.Path2D;
-import java.util.Arrays;
 
 /**
  * The class <code>net.sf.surfaceplot.SurfaceCanvas</code> is responsible
@@ -377,6 +376,7 @@ public class SurfaceCanvas extends Canvas {
                 float yNow = (y - yi) * yfactor - 10;
                 tmpVertices[k] = new Point3D(xNow,
                         yNow, v, areCloseToExtras(x, y));
+                tmpVertices[k].setOriginal(new Point3DHolder(x, y));
                 j++;
                 y += stepy;
                 k++;
@@ -395,8 +395,8 @@ public class SurfaceCanvas extends Canvas {
 
     private boolean areCloseToExtras(float x, float y) {
         long pointsClose = this.extraPoints.stream()
-                                     .filter(p -> p.isClose(x, y))
-                                     .count();
+                                           .filter(p -> p.isClose(x, y))
+                                           .count();
         return pointsClose > 0;
     }
 
@@ -980,16 +980,20 @@ public class SurfaceCanvas extends Canvas {
         boolean low1, low2;
         boolean valid1, valid2;
 
+
+
+
+        Point3DHolder original = vertex[0].getOriginal();
         Path2D path = new Path2D.Double();
+        path.moveTo(original.x, original.y);
+        for(int i = 1; i < vertex.length; ++i) {
+            original = vertex[i].getOriginal();
+            path.lineTo(original.x, original.y);
+        }
+        path.closePath();
 
-//        path.moveTo(vertex[0].x, vertex[0].y);
-//        for(int i = 1; i < vertex.length; ++i) {
-//            path.lineTo(vertex[i].x, vertex[i].y);
-//        }
-//        path.closePath();
-
-//        boolean extra = this.extraPoints.stream().anyMatch(p -> path.contains(p.x, p.y));
-        boolean extra = Arrays.stream(vertex).allMatch(Point3D::isMarked);
+        boolean extra = this.extraPoints.stream().anyMatch(p -> path.contains(p.x, p.y));
+//        boolean extra = Arrays.stream(vertex).allMatch(Point3D::isMarked);
         if (verticescount < 3) {
             return;
         }
