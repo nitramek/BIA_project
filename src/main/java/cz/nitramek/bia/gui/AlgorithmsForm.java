@@ -53,6 +53,7 @@ public class AlgorithmsForm extends JFrame {
     private JTextArea individualsInput;
     private JButton paretBtn;
     private JButton advanceButton;
+    private JCheckBox discreteCheckBox;
 
 
     public AlgorithmsForm(String frameName) {
@@ -148,6 +149,10 @@ public class AlgorithmsForm extends JFrame {
         gbc.gridy++;
         this.advanceButton = new JButton("Advance");
         algorithmPanel.add(advanceButton, gbc);
+
+        gbc.gridy++;
+        this.discreteCheckBox = new JCheckBox("Discrete");
+        algorithmPanel.add(discreteCheckBox, gbc);
     }
 
     private void setAxisPanel(JPanel axisPanel) {
@@ -279,8 +284,6 @@ public class AlgorithmsForm extends JFrame {
                 double f1Slashg = f1 / g;
                 double h = pow(f1Slashg, alfa) - f1Slashg *
                         sin(PI * Paret.F * f1 * g);
-
-
                 xList.add(f1);
                 yList.add(g * h);
             }
@@ -289,15 +292,16 @@ public class AlgorithmsForm extends JFrame {
             new SwingWrapper<>(chart).displayChart();
         });
         //this button is for generating new population on a new algorithm
-        this.generateButton.addActionListener((e) -> {
+        this.generateButton.addActionListener(e -> {
             int individualCount = Integer.parseInt(individualsInput.getText());
             EvaluatingFunction evaluatingFunction = this.model.getEvaluatingFunction();
             //TODO choose functions
             Method algorithmFactoryMethod = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
                     .getSelectedIndex()).getItem();
             Algorithm algorithm = Util
-                    .invokeMethod(algorithmFactoryMethod, AlgorithmFactory.$(), evaluatingFunction, individualCount);
-            this.model = new AlgorithmSimulationModel(evaluatingFunction, algorithm);
+                    .invokeMethod(algorithmFactoryMethod, AlgorithmFactory
+                            .$(), this.model, individualCount, this.discreteCheckBox.isSelected());
+            this.model.setAlgorithm(algorithm);
             this.invalidateCanvas();
         });
         this.advanceButton.addActionListener(e -> {

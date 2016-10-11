@@ -7,8 +7,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntUnaryOperator;
 
-@RequiredArgsConstructor()
+@RequiredArgsConstructor
 public class Individual {
 
     @Getter
@@ -30,6 +31,9 @@ public class Individual {
 
     public void replaceParam(int index, DoubleUnaryOperator operator) {
         this.parameters[index] = operator.applyAsDouble(this.parameters[index]);
+    }
+    public void replaceParam(int index, IntUnaryOperator operator) {
+        this.parameters[index] = operator.applyAsInt((int) this.parameters[index]);
     }
 
     public double getFitness(@NonNull EvaluatingFunction evaluatingEvaluatingFunction) {

@@ -1,7 +1,7 @@
 package cz.nitramek.bia.computation;
 
 
-import cz.nitramek.bia.function.EvaluatingFunction;
+import cz.nitramek.bia.gui.AlgorithmSimulationModel;
 import javafx.util.Pair;
 
 import java.util.Arrays;
@@ -24,23 +24,22 @@ public final class AlgorithmFactory {
     }
 
 
-    public Algorithm identity(EvaluatingFunction evaluatingFunction, int generationSize) {
-        Pair<Double, Double> xBoundary = new Pair<>((double) evaluatingFunction
-                .getOptimalXMin(), (double) evaluatingFunction.getOptimalXMax());
-        Pair<Double, Double> yBoundary = new Pair<>((double) evaluatingFunction
-                .getOptimalYMin(), (double) evaluatingFunction.getOptimalYMax());
-        return new Algorithm(Arrays.asList(xBoundary, yBoundary), generationSize);
+    public Algorithm identity(AlgorithmSimulationModel model, int generationSize, boolean discrete) {
+        Pair<Double, Double> xBoundary = new Pair<>((double) model.getXMin(),
+                (double)model.getXMax());
+        Pair<Double, Double> yBoundary = new Pair<>((double) model.getYMin(), (double) model.getYMax());
+        return new Algorithm(Arrays.asList(xBoundary, yBoundary), generationSize, discrete);
     }
 
-    public Algorithm walker(EvaluatingFunction evaluatingFunction, int generationSize) {
-
-        Algorithm identity = this.identity(evaluatingFunction, generationSize);
-
+    public Algorithm walker(AlgorithmSimulationModel model, int generationSize, boolean discrete) {
+        Algorithm identity = this.identity(model, generationSize, discrete);
         Function<Individual, Individual> walk = individual -> {
-            individual.replaceParam(0, x -> x +x );
+            if(discrete)
+                individual.replaceParam(0, (int x) -> x + x/2);
+            else
+                individual.replaceParam(0, (double x) -> x + x/2);
             return individual;
         };
-
         identity.setManipulation(walk);
         return identity;
     }

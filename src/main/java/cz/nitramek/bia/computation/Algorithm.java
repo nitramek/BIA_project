@@ -38,28 +38,33 @@ public class Algorithm {
     @NonNull
     private Function<Individual, Individual> manipulation = Function.identity();
 
-    /**
-     * Randomly generates parameters according to boundaries size / 2
-     *
-     * @param boundaries first number is
-     */
-    public Algorithm(List<Pair<Double, Double>> boundaries, int generationSize) {
-        this.boundaries = boundaries;
-        this.generationSize = generationSize;
+
+    public Algorithm(List<Pair<Double, Double>> boundaries, int generationSize, boolean discrete) {
+        this(boundaries, generationSize);
         Random random = new Random();
+
         this.generation = IntStream.range(0, generationSize)
-                                   .mapToObj(i -> new Individual(generateParameters(boundaries, random)))
+                                   .mapToObj(i -> new Individual(generateParameters(boundaries, random, discrete)))
                                    .collect(Collectors.toList());
     }
 
-    private double[] generateParameters(List<Pair<Double, Double>> boundaries, Random random) {
+    private Algorithm(List<Pair<Double, Double>> boundaries, int generationSize) {
+        this.boundaries = boundaries;
+        this.generationSize = generationSize;
+    }
+
+    private double[] generateParameters(List<Pair<Double, Double>> boundaries, Random random, boolean discrete) {
         return boundaries.stream()
-                         .mapToDouble(p -> randomDouble(p, random))
+                         .mapToDouble(p -> discrete ? randomInt(p, random) : randomDouble(p, random))
                          .toArray();
     }
 
     private double randomDouble(Pair<Double, Double> boundary, Random random) {
         return random.nextDouble() * (boundary.getValue() - boundary.getKey()) + boundary.getKey();
+    }
+
+    private double randomInt(Pair<Double, Double> boundary, Random random) {
+        return (int) (random.nextDouble() * (boundary.getValue() - boundary.getKey()) + boundary.getKey());
     }
 
     public void advance() {
@@ -68,17 +73,18 @@ public class Algorithm {
         generationIndex++;
     }
 
-    private void checkBoundaries(Individual individual){
+    private void checkBoundaries(Individual individual) {
         double[] parameters = individual.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             double p = parameters[i];
             Double minimum = this.boundaries.get(i).getKey();
             Double maximum = this.boundaries.get(i).getValue();
-            if(p < minimum){
-                p+=minimum;
+            double width = maximum - minimum;
+            if (p < minimum) {
+                p += width;
             }
-            if(p > maximum){
-                p-= maximum;
+            if (p > maximum) {
+                p -= width;
             }
             parameters[i] = p;
         }
