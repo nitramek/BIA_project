@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
@@ -24,6 +25,9 @@ public class Algorithm {
     private final int generationSize;
 
     @Getter
+    private final boolean discrete;
+
+    @Getter
     private int generationIndex = 1;
 
     @Getter
@@ -35,13 +39,16 @@ public class Algorithm {
     @NonNull
     private EvaluatingFunction evaluatingFunction;
 
-    @Setter
+
     @NonNull
     private Function<Individual, Individual> manipulation = Function.identity();
 
 
-    public Algorithm(List<Boundary> boundaries, int generationSize, boolean discrete) {
-        this(boundaries, generationSize);
+    public Algorithm(List<Boundary> boundaries, int generationSize, boolean discrete, EvaluatingFunction evaluatingFunction) {
+        this.boundaries = boundaries;
+        this.generationSize = generationSize;
+        this.discrete = discrete;
+        this.evaluatingFunction = evaluatingFunction;
         Random random = new Random();
 
         this.generation = IntStream.range(0, generationSize)
@@ -49,27 +56,30 @@ public class Algorithm {
                                    .collect(Collectors.toList());
     }
 
-    private Algorithm(List<Boundary> boundaries, int generationSize) {
-        this.boundaries = boundaries;
-        this.generationSize = generationSize;
-    }
 
     public void advance() {
         this.generation.replaceAll(manipulation::apply);
-        this.generation.forEach(this::checkBoundaries);
         generationIndex++;
     }
 
-    private void checkBoundaries(Individual individual) {
+    protected void checkBoundaries(Individual individual) {
         double[] parameters = individual.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             parameters[i] = this.boundaries.get(i).getInRange(parameters[i]);
         }
     }
 
-    public void setManupulations(List<Function<Individual, Individual>> manipulations) {
+    public void setManipulation(Function<Individual, Individual> manipulation) {
+        this.setManipulations(Collections.singletonList(manipulation));
+    }
+
+    public void setManipulations(List<Function<Individual, Individual>> manipulations) {
         this.manipulation = manipulations.stream()
                                          .reduce(Function.identity(), Function::andThen);
+        this.manipulation = this.manipulation.andThen(i -> {
+            this.checkBoundaries(i);
+            return i;
+        });
     }
 
 

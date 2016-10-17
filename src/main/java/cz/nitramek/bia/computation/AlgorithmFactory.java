@@ -20,6 +20,9 @@ public final class AlgorithmFactory {
     }
 
     public Algorithm identity(AlgorithmSimulationModel model, int generationSize, boolean discrete) {
-        return new Algorithm(model.getBoundaries(), generationSize, discrete);
+        return new Algorithm(model.getBoundaries(), generationSize, discrete, model.getEvaluatingFunction());
+    }
+    public Algorithm blindWalker(AlgorithmSimulationModel model, int generationSize, boolean discrete){
+        return new BlindSearch(model.getBoundaries(), discrete, model.getEvaluatingFunction(), 100);
     }
 }

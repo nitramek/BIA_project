@@ -31,11 +31,11 @@ public class Boundary {
      *
      * @return Random in interval {@literal <}min,max>
      */
-    public double randomInt(Random random) {
+    public int randomInt(Random random) {
         return (int) this.randomDouble(random);
     }
 
-    public double randomInt() {
+    public int randomInt() {
         return (int) this.randomDouble(new Random());
     }
 
