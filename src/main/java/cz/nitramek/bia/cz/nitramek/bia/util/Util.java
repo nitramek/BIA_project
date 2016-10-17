@@ -5,8 +5,10 @@ import cz.nitramek.bia.function.EvaluatingFunction;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoublePredicate;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 
 public final class Util {
     /**
@@ -17,6 +19,7 @@ public final class Util {
     public static double square(double x) {
         return Math.pow(x, 2);
     }
+
     public static float square(float x) {
         return (float) Math.pow(x, 2);
     }
@@ -26,8 +29,7 @@ public final class Util {
     }
 
 
-
-    public static Supplier<RuntimeException> exceptionMessage(String message){
+    public static Supplier<RuntimeException> exceptionMessage(String message) {
         return () -> new RuntimeException(message);
     }
 
@@ -47,5 +49,8 @@ public final class Util {
             e.printStackTrace();
             throw new RuntimeException(e);
         }
+    }
+    public static ToDoubleFunction<Boundary> forPairDouble(DoubleBinaryOperator operator) {
+        return t -> operator.applyAsDouble(t.min, t.max);
     }
 }

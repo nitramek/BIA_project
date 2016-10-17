@@ -2,6 +2,7 @@ package cz.nitramek.bia.gui;
 
 import cz.nitramek.bia.computation.Algorithm;
 import cz.nitramek.bia.computation.Individual;
+import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 import cz.nitramek.bia.function.EvaluatingFunction;
 import lombok.Getter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.sf.surfaceplot.SurfacePlotModel;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -169,6 +171,10 @@ public class AlgorithmSimulationModel implements SurfacePlotModel {
     @Override
     public String getZAxisLabel() {
         return "Z";
+    }
+
+    public List<Boundary> getBoundaries(){
+        return Arrays.asList(new Boundary(this.xMin, this.xMax), new Boundary(this.yMin, this.yMax));
     }
 
 }

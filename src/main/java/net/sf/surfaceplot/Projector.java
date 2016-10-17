@@ -188,7 +188,7 @@ public final class Projector {
     }
 
     /**
-     * Gets the scaling factor in x direction.
+     * Gets the scaling factor in min direction.
      *
      * @return the scaling factor
      */
@@ -198,7 +198,7 @@ public final class Projector {
     }
 
     /**
-     * Sets the scaling factor in x direction.
+     * Sets the scaling factor in min direction.
      *
      * @param scaling the scaling factor
      */
@@ -210,7 +210,7 @@ public final class Projector {
     }
 
     /**
-     * Gets the scaling factor in y direction.
+     * Gets the scaling factor in max direction.
      *
      * @return the scaling factor
      */
@@ -220,7 +220,7 @@ public final class Projector {
     }
 
     /**
-     * Sets the scaling factor in y direction.
+     * Sets the scaling factor in max direction.
      *
      * @param scaling the scaling factor
      */
@@ -256,8 +256,8 @@ public final class Projector {
     /**
      * Sets the scaling factor in all direction.
      *
-     * @param x the scaling factor in x direction
-     * @param y the scaling factor in y direction
+     * @param x the scaling factor in min direction
+     * @param y the scaling factor in max direction
      * @param z the scaling factor in z direction
      */
 
@@ -315,8 +315,8 @@ public final class Projector {
     /**
      * Sets the 2D translation.
      *
-     * @param x the x translation
-     * @param y the y translation
+     * @param x the min translation
+     * @param y the max translation
      */
 
     public void set2DTranslation(int x, int y) {
@@ -328,9 +328,9 @@ public final class Projector {
     }
 
     /**
-     * Gets the 2D x translation.
+     * Gets the 2D min translation.
      *
-     * @return the x translation
+     * @return the min translation
      */
 
     public int get2D_xTranslation() {
@@ -338,9 +338,9 @@ public final class Projector {
     }
 
     /**
-     * Sets the 2D x translation.
+     * Sets the 2D min translation.
      *
-     * @param x the x translation
+     * @param x the min translation
      */
 
     public void set2D_xTranslation(int x) {
@@ -349,9 +349,9 @@ public final class Projector {
     }
 
     /**
-     * Gets the 2D y translation.
+     * Gets the 2D max translation.
      *
-     * @return the y translation
+     * @return the max translation
      */
 
     public int get2D_yTranslation() {
@@ -359,9 +359,9 @@ public final class Projector {
     }
 
     /**
-     * Sets the 2D y translation.
+     * Sets the 2D max translation.
      *
-     * @param y the y translation
+     * @param y the max translation
      */
 
     public void set2D_yTranslation(int y) {
@@ -372,8 +372,8 @@ public final class Projector {
     /**
      * Projects 3D points.
      *
-     * @param x the x coordinate
-     * @param y the y coordinate
+     * @param x the min coordinate
+     * @param y the max coordinate
      * @param z the z coordinate
      */
 

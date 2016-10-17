@@ -42,11 +42,11 @@ public final class Point3D {
     private static float zfactor;
     private static int master_project_index = 0;     // over 4 billion times to reset
     /**
-     * The x coordinate
+     * The min coordinate
      */
     public float x;
     /**
-     * The y coordinate
+     * The max coordinate
      */
     public float y;
     /**
@@ -66,10 +66,10 @@ public final class Point3D {
 
     /**
      * The constructor of <code>SurfaceVertex</code>.
-     * The x and y coordinated must be in normalized form, i.e: in the range -10 .. +10.
+     * The min and max coordinated must be in normalized form, i.e: in the range -10 .. +10.
      *
-     * @param ix the x coordinate
-     * @param iy the y coordinate
+     * @param ix the min coordinate
+     * @param iy the max coordinate
      * @param iz the z coordinate
      */
 
@@ -79,9 +79,9 @@ public final class Point3D {
 
     /**
      * The constructor of <code>SurfaceVertex</code>.
-     * The x and y coordinated must be in normalized form, i.e: in the range -10 .. +10.
-     *  @param ix the x coordinate
-     * @param iy the y coordinate
+     * The min and max coordinated must be in normalized form, i.e: in the range -10 .. +10.
+     *  @param ix the min coordinate
+     * @param iy the max coordinate
      * @param iz the z coordinate
      * @param marked
      */

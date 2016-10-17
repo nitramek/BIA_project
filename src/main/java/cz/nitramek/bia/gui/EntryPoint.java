@@ -16,7 +16,7 @@ public class EntryPoint {
 
         AlgorithmsForm frame = new AlgorithmsForm("FunctionForm");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(HEIGHT, 600);
         frame.setVisible(true);
     }
 }

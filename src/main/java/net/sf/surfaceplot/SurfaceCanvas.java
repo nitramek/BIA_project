@@ -163,8 +163,8 @@ public class SurfaceCanvas extends Canvas {
      * have been done with the delay regeneration flag set on.
      *
      * @param e the event
-     * @param x the x coordinate of cursor
-     * @param y the y coordinate of cursor
+     * @param min the min coordinate of cursor
+     * @param max the max coordinate of cursor
      */
 
     /**
@@ -176,14 +176,14 @@ public class SurfaceCanvas extends Canvas {
     }
 
     /**
-     * Sets the x and y ranges of calculated surface vertices.
+     * Sets the min and max ranges of calculated surface vertices.
      * The ranges will not affect surface appearance. They affect axes
      * scale appearance.
      *
-     * @param xmin the minimum x
-     * @param xmax the maximum x
-     * @param ymin the minimum y
-     * @param ymax the maximum y
+     * @param xmin the minimum min
+     * @param xmax the maximum min
+     * @param ymin the minimum max
+     * @param ymax the maximum max
      */
     public void setRanges(float xmin, float xmax, float ymin, float ymax) {
         this.xmin = xmin;
@@ -193,9 +193,9 @@ public class SurfaceCanvas extends Canvas {
     }
 
     /**
-     * Gets the current x, y, and z ranges.
+     * Gets the current min, max, and z ranges.
      *
-     * @return array of x,y, and z ranges in order of
+     * @return array of min,max, and z ranges in order of
      * xmin, xmax, ymin, ymax, zmin, zmax
      */
     public float[] getRanges() {
@@ -251,8 +251,8 @@ public class SurfaceCanvas extends Canvas {
      * for dragging operations.
      *
      * @param e the event
-     * @param x the x coordinate of cursor
-     * @param y the y coordinate of cursor
+     * @param x the min coordinate of cursor
+     * @param y the max coordinate of cursor
      */
     @Override
     public boolean mouseDown(Event e, int x, int y) {
@@ -266,7 +266,7 @@ public class SurfaceCanvas extends Canvas {
      * Checks the delay regeneration flag and does proper actions.
      *
      * @param e the event
-     * @param x the x coordinate of cursor
+     * @param x the min coordinate of cursor
      */
     @Override
     public boolean mouseDrag(Event e, int x, int y) {
@@ -356,7 +356,7 @@ public class SurfaceCanvas extends Canvas {
         this.extraPoints = this.model.getExtraPoints();
 
         Point3DHolder.xRangeThreshold = (float) Math.sqrt(stepx * stepx + stepy * stepy);
-//        this.extraPoints.replaceAll(p -> new Point3DHolder(p.x * xfactor - 10, p.y * yfactor - 10));
+//        this.extraPoints.replaceAll(p -> new Point3DHolder(p.min * xfactor - 10, p.max * yfactor - 10));
         while (i <= calc_divisions) {
             while (j <= calc_divisions) {
                 v = model.calculateZ(x, y);
@@ -542,11 +542,11 @@ public class SurfaceCanvas extends Canvas {
     }
 
     /**
-     * Draws the base plane. The base plane is the x-y plane.
+     * Draws the base plane. The base plane is the min-max plane.
      *
      * @param g the graphics context to draw.
-     * @param x used to retrieve x coordinates of drawn plane from this method.
-     * @param y used to retrieve y coordinates of drawn plane from this method.
+     * @param x used to retrieve min coordinates of drawn plane from this method.
+     * @param y used to retrieve max coordinates of drawn plane from this method.
      */
     private void drawBase(Graphics g, int[] x, int[] y) {
         Point projection = projector.project(-10, -10, -10);
@@ -920,11 +920,11 @@ public class SurfaceCanvas extends Canvas {
      * Draws string at the specified coordinates with the specified alignment.
      *
      * @param g       graphics context to draw
-     * @param x       the x coordinate
-     * @param y       the y coordinate
+     * @param x       the min coordinate
+     * @param y       the max coordinate
      * @param s       the string to draw
-     * @param x_align the alignment in x direction
-     * @param y_align the alignment in y direction
+     * @param x_align the alignment in min direction
+     * @param y_align the alignment in max direction
      */
     private void drawString(Graphics g, int x, int y,
                             String s, int x_align, int y_align) {
@@ -955,11 +955,11 @@ public class SurfaceCanvas extends Canvas {
      * Draws float at the specified coordinates with the specified alignment.
      *
      * @param g       graphics context to draw
-     * @param x       the x coordinate
-     * @param y       the y coordinate
+     * @param x       the min coordinate
+     * @param y       the max coordinate
      * @param f       the float to draw
-     * @param x_align the alignment in x direction
-     * @param y_align the alignment in y direction
+     * @param x_align the alignment in min direction
+     * @param y_align the alignment in max direction
      */
     private void drawNumber(Graphics g, int x, int y,
                             float f, int x_align, int y_align) {
@@ -1096,12 +1096,12 @@ public class SurfaceCanvas extends Canvas {
     /**
      * Plots an area of group of planes
      *
-     * @param start_lx start index in x direction
-     * @param start_ly start index in y direction
-     * @param end_lx   end index in x direction
-     * @param end_ly   end index in y direction
-     * @param sx       step in x direction
-     * @param sy       step in y direction
+     * @param start_lx start index in min direction
+     * @param start_ly start index in max direction
+     * @param end_lx   end index in min direction
+     * @param end_ly   end index in max direction
+     * @param sx       step in min direction
+     * @param sy       step in max direction
      */
     private void plotArea(int start_lx, int start_ly,
                           int end_lx, int end_ly,
@@ -1207,17 +1207,17 @@ public class SurfaceCanvas extends Canvas {
         if ((cop.x > 10) || (cop.x < -10)) {
             if ((cop.y > 10) || (cop.y < -10)) {
                 plotArea(start_lx, start_ly, end_lx, end_ly, sx, sy);
-            } else {    // split in y direction
+            } else {    // split in max direction
                 int split_y = (int) ((cop.y + 10) * plot_density / 20) * multiple_factor;
                 plotArea(start_lx, 0, end_lx, split_y, sx, multiple_factor);
                 plotArea(start_lx, calc_divisions, end_lx, split_y, sx, -multiple_factor);
             }
         } else {
-            if ((cop.y > 10) || (cop.y < -10)) {   // split in x direction
+            if ((cop.y > 10) || (cop.y < -10)) {   // split in min direction
                 int split_x = (int) ((cop.x + 10) * plot_density / 20) * multiple_factor;
                 plotArea(0, start_ly, split_x, end_ly, multiple_factor, sy);
                 plotArea(calc_divisions, start_ly, split_x, end_ly, -multiple_factor, sy);
-            } else {    // split in both x and y directions
+            } else {    // split in both min and max directions
                 int split_x = (int) ((cop.x + 10) * plot_density / 20) * multiple_factor;
                 int split_y = (int) ((cop.y + 10) * plot_density / 20) * multiple_factor;
                 plotArea(0, 0, split_x, split_y, multiple_factor, multiple_factor);
@@ -1269,7 +1269,7 @@ public class SurfaceCanvas extends Canvas {
         k = 0;
         counter = 0;
 
-        // plot - x direction
+        // plot - min direction
 
         while (i <= calc_divisions) {
             lasterror = true;
@@ -1333,7 +1333,7 @@ public class SurfaceCanvas extends Canvas {
             counter = (counter + 1) % multiple_factor;
         }
 
-        // plot - y direction
+        // plot - max direction
 
         i = 0;
         j = 0;

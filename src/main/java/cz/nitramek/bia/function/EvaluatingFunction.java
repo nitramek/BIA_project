@@ -1,21 +1,22 @@
 package cz.nitramek.bia.function;
 
 
-import cz.nitramek.bia.cz.nitramek.bia.util.BiDoubleFunction;
-
 import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public interface EvaluatingFunction {
-    static double calculateSumForTwo(double[] params, BiDoubleFunction function) {
-        return IntStream.rangeClosed(1, params.length - 1).mapToDouble(i -> function.apply(params[i - 1], params[i]))
+    static double calculateSumForTwo(double[] params, DoubleBinaryOperator function) {
+        return IntStream.rangeClosed(1, params.length - 1)
+                        .mapToDouble(i -> function.applyAsDouble(params[i - 1], params[i]))
                         .sum();
     }
 
-    static DoubleStream calculateForTwo(double[] params, BiDoubleFunction function) {
-        return IntStream.rangeClosed(1, params.length - 1).mapToDouble(i -> function.apply(params[i - 1], params[i]));
+    static DoubleStream calculateForTwo(double[] params, DoubleBinaryOperator function) {
+        return IntStream.rangeClosed(1, params.length - 1)
+                        .mapToDouble(i -> function.applyAsDouble(params[i - 1], params[i]));
     }
 
     static DoubleStream calculateForOne(double[] params, DoubleUnaryOperator function) {

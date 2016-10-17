@@ -252,7 +252,7 @@ public class AlgorithmsForm extends JFrame {
             this.model = new AlgorithmSimulationModel(evaluatingFunction, this.model.getAlgorithm());
             this.invalidateCanvas();
         });
-        //on axis apply button
+        //on axis applyAsDouble button
         this.applyAxisButton.addActionListener(e -> {
             IntStream.range(0, this.spinners.size()).forEach(i -> {
                 Float number = Float.parseFloat(this.spinners.get(i).getText());
