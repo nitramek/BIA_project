@@ -3,10 +3,10 @@ package cz.nitramek.bia.gui;
 
 import com.carrotsearch.hppc.DoubleArrayList;
 import cz.nitramek.bia.computation.Algorithm;
-import cz.nitramek.bia.computation.AlgorithmFactory;
 import cz.nitramek.bia.cz.nitramek.bia.util.Util;
 import cz.nitramek.bia.function.EvaluatingFunction;
 import cz.nitramek.bia.function.Paret;
+import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
 import lombok.val;
 import net.sf.surfaceplot.SurfaceCanvas;
 import org.knowm.xchart.SwingWrapper;
@@ -17,7 +17,8 @@ import org.knowm.xchart.style.Styler;
 
 import javax.swing.*;
 import java.awt.*;
-import java.lang.reflect.Method;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +29,7 @@ import static java.lang.Math.*;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
-public class AlgorithmsForm extends JFrame {
+public class AlgorithmsForm extends JFrame implements ActionListener {
 
 
     private final SurfaceCanvas canvas;
@@ -48,12 +49,13 @@ public class AlgorithmsForm extends JFrame {
                     AlgorithmSimulationModel::setYMin,
                     AlgorithmSimulationModel::setYMax, AlgorithmSimulationModel::setZMin,
                     AlgorithmSimulationModel::setZMax);
-    private JComboBox<ComboItem<Method>> algorithmsComboBox;
+    private JComboBox<ComboItem<AlgorithmPanel>> algorithmsComboBox;
     private JTextArea individualsInput;
     private JButton paretBtn;
     private JButton runButton;
     private JCheckBox discreteCheckBox;
     private JTextField generationSizeField;
+    private JPanel algorithmHolderPanel;
 
 
     public AlgorithmsForm(String frameName) {
@@ -78,6 +80,8 @@ public class AlgorithmsForm extends JFrame {
 
         this.setupData();
         this.setupListeners();
+
+        this.algorithmHolderPanel.add(this.algorithmsComboBox.getModel().getElementAt(0).getItem());
     }
 
     private void setupFunctionPanel(JPanel functionsPanel) {
@@ -109,15 +113,22 @@ public class AlgorithmsForm extends JFrame {
         functionsPanel.add(algorithmPanel, gbc);
 
 
-        setupAlgorithmPanel(algorithmPanel);
+        this.setupAlgorithmPanel(algorithmPanel);
 
-        //bump panel up
+
+        gbc.gridy++;
+        gbc.weighty = 0.;
+        gbc.gridx = 0;
+
+        this.algorithmHolderPanel = new JPanel();
+        functionsPanel.add(this.algorithmHolderPanel, gbc);
+
         gbc.gridy++;
         gbc.weighty = 1;
         gbc.gridx = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        //filler, which pushes components up the top
         functionsPanel.add(new JPanel(), gbc);
+        //filler, which pushes components up the top
     }
 
     private void setupAlgorithmPanel(JPanel algorithmPanel) {
@@ -164,18 +175,10 @@ public class AlgorithmsForm extends JFrame {
         this.generationSizeField = new JTextField("10");
         algorithmPanel.add(generationSizeField, gbc);
 
-
-
-
         //gbc.gridy++;
         gbc.gridx = 2;
         this.runButton = new JButton("Run");
         algorithmPanel.add(runButton, gbc);
-
-
-
-
-
     }
 
     private void setAxisPanel(JPanel axisPanel) {
@@ -248,18 +251,12 @@ public class AlgorithmsForm extends JFrame {
                                           toCollection(Vector::new),
                                           DefaultComboBoxModel::new));
         this.comboBox.setModel(comboBoxModel);
-
-        Method[] methods = AlgorithmFactory.class.getDeclaredMethods();
-        val algorithmComboBoxModel = Arrays.stream(methods)
-                                           .filter(m -> !m.isSynthetic()) //odebere lambdy..
-                                           .filter(m -> m.getReturnType() //vybere jen takové, kde je navr.typ Algoritm
-                                                         .isAssignableFrom(Algorithm.class))
-                                           .map(m -> ComboItem.createComboItem(m, Method::getName))
-                                           .collect(collectingAndThen(
-                                                   toCollection(Vector::new),
-                                                   DefaultComboBoxModel::new));
-
-        this.algorithmsComboBox.setModel(algorithmComboBoxModel);
+        val algorithmModel =
+                EntryPoint.algorithmPanels.stream()
+                      .map(constructor -> constructor.apply(this))
+                      .map(panel -> new ComboItem<>(panel, panel.getAlgorithmName()))
+                      .collect(collectingAndThen(toCollection(Vector::new), DefaultComboBoxModel::new));
+        this.algorithmsComboBox.setModel(algorithmModel);
 
         EvaluatingFunction evaluatingFunction = Util.createFunction(EntryPoint.functions[0]);
         this.model = new AlgorithmSimulationModel(evaluatingFunction);
@@ -314,40 +311,24 @@ public class AlgorithmsForm extends JFrame {
             chart.addSeries("Paret", xList.toArray(), yList.toArray());
             new SwingWrapper<>(chart).displayChart();
         });
-        this.runButton.addActionListener(e -> {
-            this.generateIndividuals();
-            Thread t = new Thread(this::runAlgorithm);
-            t.start();
+        this.algorithmsComboBox.addActionListener(e -> {
+            AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
+                    .getSelectedIndex()).getItem();
+            this.algorithmHolderPanel.removeAll();
+            this.algorithmHolderPanel.add(algorithmPanel);
+            this.algorithmHolderPanel.revalidate();
+
         });
-    }
 
-    private void generateIndividuals() {
-        int individualCount = Integer.parseInt(individualsInput.getText());
-        EvaluatingFunction evaluatingFunction = this.model.getEvaluatingFunction();
-        //TODO choose functions
-        Method algorithmFactoryMethod = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
-                .getSelectedIndex()).getItem();
-        int maximumGenerations = Integer.parseInt(this.generationSizeField.getText());
-        Algorithm algorithm = Util
-                .invokeMethod(algorithmFactoryMethod, AlgorithmFactory
-                        .$(), this.model, individualCount, this.discreteCheckBox.isSelected(), maximumGenerations);
-        this.model.setAlgorithm(algorithm);
-        this.invalidateCanvas();
-    }
-
-    /**
-     * Runs in another thread
-     */
-    private void runAlgorithm() {
-        while(!this.model.getAlgorithm().isFinished()) {
-            this.model.getAlgorithm().advance();
-            SwingUtilities.invokeLater(this::invalidateCanvas);
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
+        this.runButton.addActionListener(e -> {
+            int individualCount = Integer.parseInt(individualsInput.getText());
+            int maximumGenerations = Integer.parseInt(this.generationSizeField.getText());
+            AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
+                    .getSelectedIndex()).getItem();
+            Algorithm algorithm = algorithmPanel.start(this.model.getEvaluatingFunction(), this.model
+                    .getBoundaries(), individualCount, maximumGenerations, this.discreteCheckBox.isSelected());
+            this.model.setAlgorithm(algorithm);
+        });
     }
 
     private void invalidateCanvas() {
@@ -356,5 +337,11 @@ public class AlgorithmsForm extends JFrame {
 
         this.canvas.setModel(this.model);
         this.canvas.invalidate();
+    }
+
+    //function to update GUI, it is expected to be called from another thread, thus invokelater
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        SwingUtilities.invokeLater(this::invalidateCanvas);
     }
 }

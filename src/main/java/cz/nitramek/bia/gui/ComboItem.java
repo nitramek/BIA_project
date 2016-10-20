@@ -11,7 +11,7 @@ public class ComboItem<E> {
 
     public ComboItem(E item, String str) {
         this.item = item;
-        this.str = str;
+        this.str = Character.toUpperCase(str.charAt(0)) + str.substring(1);
     }
 
     public static <E> ComboItem<E> createComboItem(E item, Function<E, String> strFunction) {
