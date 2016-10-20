@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import net.sf.surfaceplot.SurfacePlotModel;
 
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +40,8 @@ public class AlgorithmSimulationModel implements SurfacePlotModel {
     @Getter
     private EvaluatingFunction evaluatingFunction;
 
+    private List<Point3DHolder> extraPoints = Collections.emptyList();
+
     public AlgorithmSimulationModel(EvaluatingFunction evaluatingFunction, Algorithm algorithm) {
         this.algorithm = algorithm;
         this.evaluatingFunction = evaluatingFunction;
@@ -63,19 +66,33 @@ public class AlgorithmSimulationModel implements SurfacePlotModel {
 
     @Override
     public List<Point3DHolder> getExtraPoints() {
-        if(this.algorithm == null){
+        if (this.algorithm == null) {
             return Collections.emptyList();
-        }else{
-            return this.algorithm.getGeneration().stream()
-                          .map(this::fromIndividual)
-                          .collect(Collectors.toList());
+        } else {
+            if (this.algorithm.isFinished()) {
+                return Collections.singletonList(this.fromIndividual(this.algorithm.getBest()));
+            } else {
+                return this.algorithm.getGeneration().stream()
+                                     .map(this::fromIndividual)
+                                     .collect(Collectors.toList());
+            }
         }
     }
+
 
     private Point3DHolder fromIndividual(Individual i) {
         double x = i.getParameters()[0];
         double y = i.getParameters()[1];
         return new Point3DHolder(x, y, 0);
+    }
+
+    @Override
+    public Color getExtraColor() {
+        if (this.algorithm.isFinished()) {
+            return Color.RED;
+        } else {
+            return Color.BLACK;
+        }
     }
 
     @Override
@@ -173,7 +190,7 @@ public class AlgorithmSimulationModel implements SurfacePlotModel {
         return "Z";
     }
 
-    public List<Boundary> getBoundaries(){
+    public List<Boundary> getBoundaries() {
         return Arrays.asList(new Boundary(this.xMin, this.xMax), new Boundary(this.yMin, this.yMax));
     }
 

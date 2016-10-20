@@ -5,6 +5,7 @@ package net.sf.surfaceplot;/*
 
 import cz.nitramek.bia.cz.nitramek.bia.util.Point3DHolder;
 
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,6 +18,10 @@ public interface SurfacePlotModel {
     int PLOT_MODE_SPECTRUM = 2;
     int PLOT_MODE_GRAYSCALE = 3;
     int PLOT_MODE_DUALSHADE = 4;
+
+    default  Color getExtraColor(){
+        return Color.BLACK;
+    }
 
     int getPlotMode();
 

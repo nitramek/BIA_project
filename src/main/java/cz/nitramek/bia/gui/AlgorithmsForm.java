@@ -49,11 +49,11 @@ public class AlgorithmsForm extends JFrame {
                     AlgorithmSimulationModel::setYMax, AlgorithmSimulationModel::setZMin,
                     AlgorithmSimulationModel::setZMax);
     private JComboBox<ComboItem<Method>> algorithmsComboBox;
-    private JButton generateButton;
     private JTextArea individualsInput;
     private JButton paretBtn;
-    private JButton advanceButton;
+    private JButton runButton;
     private JCheckBox discreteCheckBox;
+    private JTextField generationSizeField;
 
 
     public AlgorithmsForm(String frameName) {
@@ -130,6 +130,7 @@ public class AlgorithmsForm extends JFrame {
         gbc.weighty = 0.;
         gbc.gridy = 0;
         gbc.gridx = 0;
+        gbc.gridwidth = 3;
 
         algorithmPanel.add(new JLabel("Algorithm"), gbc);
 
@@ -138,21 +139,43 @@ public class AlgorithmsForm extends JFrame {
         gbc.gridy++;
         algorithmPanel.add(algorithmsComboBox, gbc);
 
-        this.individualsInput = new JTextArea("10");
         gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        algorithmPanel.add(new JLabel("Generation size"), gbc);
+        this.individualsInput = new JTextArea("10");
+
+        gbc.gridx = 2;
+        gbc.gridwidth = 1;
         algorithmPanel.add(individualsInput, gbc);
 
         gbc.gridy++;
-        this.generateButton = new JButton("Generate");
-        algorithmPanel.add(generateButton, gbc);
-
-        gbc.gridy++;
-        this.advanceButton = new JButton("Advance");
-        algorithmPanel.add(advanceButton, gbc);
-
-        gbc.gridy++;
+        gbc.gridwidth = 3;
+        gbc.gridx = 0;
         this.discreteCheckBox = new JCheckBox("Discrete");
         algorithmPanel.add(discreteCheckBox, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        algorithmPanel.add(new JLabel("Generations: "), gbc);
+
+        gbc.gridx = 1;
+        this.generationSizeField = new JTextField("10");
+        algorithmPanel.add(generationSizeField, gbc);
+
+
+
+
+        //gbc.gridy++;
+        gbc.gridx = 2;
+        this.runButton = new JButton("Run");
+        algorithmPanel.add(runButton, gbc);
+
+
+
+
+
     }
 
     private void setAxisPanel(JPanel axisPanel) {
@@ -291,23 +314,40 @@ public class AlgorithmsForm extends JFrame {
             chart.addSeries("Paret", xList.toArray(), yList.toArray());
             new SwingWrapper<>(chart).displayChart();
         });
-        //this button is for generating new population on a new algorithm
-        this.generateButton.addActionListener(e -> {
-            int individualCount = Integer.parseInt(individualsInput.getText());
-            EvaluatingFunction evaluatingFunction = this.model.getEvaluatingFunction();
-            //TODO choose functions
-            Method algorithmFactoryMethod = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
-                    .getSelectedIndex()).getItem();
-            Algorithm algorithm = Util
-                    .invokeMethod(algorithmFactoryMethod, AlgorithmFactory
-                            .$(), this.model, individualCount, this.discreteCheckBox.isSelected());
-            this.model.setAlgorithm(algorithm);
-            this.invalidateCanvas();
+        this.runButton.addActionListener(e -> {
+            this.generateIndividuals();
+            Thread t = new Thread(this::runAlgorithm);
+            t.start();
         });
-        this.advanceButton.addActionListener(e -> {
+    }
+
+    private void generateIndividuals() {
+        int individualCount = Integer.parseInt(individualsInput.getText());
+        EvaluatingFunction evaluatingFunction = this.model.getEvaluatingFunction();
+        //TODO choose functions
+        Method algorithmFactoryMethod = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
+                .getSelectedIndex()).getItem();
+        int maximumGenerations = Integer.parseInt(this.generationSizeField.getText());
+        Algorithm algorithm = Util
+                .invokeMethod(algorithmFactoryMethod, AlgorithmFactory
+                        .$(), this.model, individualCount, this.discreteCheckBox.isSelected(), maximumGenerations);
+        this.model.setAlgorithm(algorithm);
+        this.invalidateCanvas();
+    }
+
+    /**
+     * Runs in another thread
+     */
+    private void runAlgorithm() {
+        while(!this.model.getAlgorithm().isFinished()) {
             this.model.getAlgorithm().advance();
-            this.invalidateCanvas();
-        });
+            SwingUtilities.invokeLater(this::invalidateCanvas);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 
     private void invalidateCanvas() {

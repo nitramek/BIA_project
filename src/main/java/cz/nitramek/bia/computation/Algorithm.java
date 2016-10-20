@@ -43,12 +43,16 @@ public class Algorithm {
     @NonNull
     private Function<Individual, Individual> manipulation = Function.identity();
 
+    @Getter
+    private final int maximumGeneration;
 
-    public Algorithm(List<Boundary> boundaries, int generationSize, boolean discrete, EvaluatingFunction evaluatingFunction) {
+
+    public Algorithm(List<Boundary> boundaries, int generationSize, boolean discrete, EvaluatingFunction evaluatingFunction, int maximumGeneration) {
         this.boundaries = boundaries;
         this.generationSize = generationSize;
         this.discrete = discrete;
         this.evaluatingFunction = evaluatingFunction;
+        this.maximumGeneration = maximumGeneration;
         Random random = new Random();
 
         this.generation = IntStream.range(0, generationSize)
@@ -58,8 +62,13 @@ public class Algorithm {
 
 
     public void advance() {
-        this.generation.replaceAll(manipulation::apply);
-        generationIndex++;
+        if(!this.isFinished()) {
+            this.generation.replaceAll(manipulation::apply);
+            generationIndex++;
+        }
+    }
+    public boolean isFinished(){
+        return this.generationIndex > this.maximumGeneration;
     }
 
     protected void checkBoundaries(Individual individual) {

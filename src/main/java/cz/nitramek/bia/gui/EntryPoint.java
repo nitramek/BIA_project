@@ -13,10 +13,12 @@ public class EntryPoint {
             AckleyTwo.class, EggHolder.class, Rana.class, Patological.class, Michalewicz.class, MastersCosine.class};
 
     public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            AlgorithmsForm frame = new AlgorithmsForm("FunctionForm");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(800, HEIGHT);
+            frame.setVisible(true);
+        });
 
-        AlgorithmsForm frame = new AlgorithmsForm("FunctionForm");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(HEIGHT, 600);
-        frame.setVisible(true);
     }
 }

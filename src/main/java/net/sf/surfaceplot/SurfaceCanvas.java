@@ -1080,7 +1080,7 @@ public class SurfaceCanvas extends Canvas {
                     break;
             }
             if (extra) {
-                bufferGraphics.setColor(SurfaceCanvas.extraColor);
+                bufferGraphics.setColor(this.model.getExtraColor());
             }
             bufferGraphics.fillPolygon(poly_x, poly_y, count);
             bufferGraphics.setColor(line_color);

@@ -19,10 +19,16 @@ public final class AlgorithmFactory {
         return instance;
     }
 
-    public Algorithm identity(AlgorithmSimulationModel model, int generationSize, boolean discrete) {
-        return new Algorithm(model.getBoundaries(), generationSize, discrete, model.getEvaluatingFunction());
+
+    public Algorithm identity(AlgorithmSimulationModel model, int generationSize, boolean discrete, int
+            maximumGeneration) {
+        return new Algorithm(model.getBoundaries(), generationSize, discrete, model
+                .getEvaluatingFunction(), maximumGeneration);
     }
-    public Algorithm blindWalker(AlgorithmSimulationModel model, int generationSize, boolean discrete){
-        return new BlindSearch(model.getBoundaries(), discrete, model.getEvaluatingFunction(), 100);
+
+    public Algorithm blindWalker(AlgorithmSimulationModel model, int generationSize, boolean discrete, int
+            maximumGeneration) {
+        return new BlindSearch(model.getBoundaries(), generationSize, discrete, model
+                .getEvaluatingFunction(), maximumGeneration);
     }
 }

@@ -14,7 +14,7 @@ import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
 
 @RequiredArgsConstructor
-public class Individual {
+public class Individual{
 
     @Getter
     private final double parameters[];
@@ -32,7 +32,6 @@ public class Individual {
 
     public double getParam(int index) {
         return this.parameters[index];
-
     }
 
     public void setParam(int index, double param) {
