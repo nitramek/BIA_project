@@ -120,7 +120,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         gbc.weighty = 0.;
         gbc.gridx = 0;
 
-        this.algorithmHolderPanel = new JPanel();
+        this.algorithmHolderPanel = new JPanel(new BorderLayout());
         functionsPanel.add(this.algorithmHolderPanel, gbc);
 
         gbc.gridy++;
@@ -315,7 +315,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
             AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
                     .getSelectedIndex()).getItem();
             this.algorithmHolderPanel.removeAll();
-            this.algorithmHolderPanel.add(algorithmPanel);
+            this.algorithmHolderPanel.add(algorithmPanel, BorderLayout.CENTER);
             this.algorithmHolderPanel.revalidate();
 
         });

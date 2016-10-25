@@ -4,6 +4,7 @@ package cz.nitramek.bia.gui;
 import cz.nitramek.bia.function.*;
 import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
 import cz.nitramek.bia.gui.algorithm.BlindSearchPanel;
+import cz.nitramek.bia.gui.algorithm.SimulatedAnnealingPanel;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
@@ -19,7 +20,8 @@ public class EntryPoint {
             Rastrigin.class, Schwefel.class, Griewangk.class, SineEnvelope.class, StretchedSin.class, AckleyOne.class,
             AckleyTwo.class, EggHolder.class, Rana.class, Patological.class, Michalewicz.class, MastersCosine.class};
 
-    static final List<Function<ActionListener, AlgorithmPanel>> algorithmPanels = Arrays.asList(BlindSearchPanel::new);
+    static final List<Function<ActionListener, AlgorithmPanel>> algorithmPanels = Arrays
+            .asList(BlindSearchPanel::new, SimulatedAnnealingPanel::new);
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
