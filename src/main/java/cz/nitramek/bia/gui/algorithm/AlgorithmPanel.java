@@ -1,15 +1,16 @@
 package cz.nitramek.bia.gui.algorithm;
 
 
-import cz.nitramek.bia.computation.Algorithm;
-import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
-import cz.nitramek.bia.function.EvaluatingFunction;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+
+import javax.swing.*;
+
+import cz.nitramek.bia.computation.Algorithm;
+import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
+import cz.nitramek.bia.function.EvaluatingFunction;
 
 public abstract class AlgorithmPanel extends JPanel {
 
@@ -22,6 +23,31 @@ public abstract class AlgorithmPanel extends JPanel {
     public AlgorithmPanel(ActionListener guiUpdateListener) {
         super();
         this.guiUpdateListener = guiUpdateListener;
+    }
+
+    public void addInGrid(int row, int column, JComponent component){
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        gbc.gridx = column;
+        gbc.gridy = row;
+        this.add(component, gbc);
+    }
+    public JTextField addInGrid(String label, Number value, int row){
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.anchor = GridBagConstraints.NORTH;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        this.add(new JLabel(label), gbc);
+        gbc.gridx = 1;
+        JTextField textField = new JTextField(value.toString());;
+        this.add(textField, gbc);
+        return textField;
     }
 
 
@@ -37,7 +63,7 @@ public abstract class AlgorithmPanel extends JPanel {
                 algorithm.advance();
                 this.requestPlotUpdate();
                 try {
-                    Thread.sleep(500);
+                    Thread.sleep(100);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

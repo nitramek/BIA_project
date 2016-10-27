@@ -2,20 +2,15 @@ package cz.nitramek.bia.gui;
 
 
 import com.carrotsearch.hppc.DoubleArrayList;
-import cz.nitramek.bia.computation.Algorithm;
-import cz.nitramek.bia.cz.nitramek.bia.util.Util;
-import cz.nitramek.bia.function.EvaluatingFunction;
-import cz.nitramek.bia.function.Paret;
-import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
-import lombok.val;
+
 import net.sf.surfaceplot.SurfaceCanvas;
+
 import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 import org.knowm.xchart.XYChartBuilder;
 import org.knowm.xchart.XYSeries;
 import org.knowm.xchart.style.Styler;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -25,7 +20,18 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.stream.IntStream;
 
-import static java.lang.Math.*;
+import javax.swing.*;
+
+import cz.nitramek.bia.computation.Algorithm;
+import cz.nitramek.bia.cz.nitramek.bia.util.Util;
+import cz.nitramek.bia.function.EvaluatingFunction;
+import cz.nitramek.bia.function.Paret;
+import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
+import lombok.val;
+
+import static java.lang.Math.PI;
+import static java.lang.Math.pow;
+import static java.lang.Math.sin;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toCollection;
 
@@ -245,17 +251,17 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
 
     private void setupData() {
         val comboBoxModel = Arrays.stream(EntryPoint.functions)
-                                  .map(Util::createFunction)
-                                  .map(ComboItem::createComboItem)
-                                  .collect(collectingAndThen(
-                                          toCollection(Vector::new),
-                                          DefaultComboBoxModel::new));
+                .map(Util::createFunction)
+                .map(ComboItem::createComboItem)
+                .collect(collectingAndThen(
+                        toCollection(Vector::new),
+                        DefaultComboBoxModel::new));
         this.comboBox.setModel(comboBoxModel);
         val algorithmModel =
                 EntryPoint.algorithmPanels.stream()
-                      .map(constructor -> constructor.apply(this))
-                      .map(panel -> new ComboItem<>(panel, panel.getAlgorithmName()))
-                      .collect(collectingAndThen(toCollection(Vector::new), DefaultComboBoxModel::new));
+                        .map(constructor -> constructor.apply(this))
+                        .map(panel -> new ComboItem<>(panel, panel.getAlgorithmName()))
+                        .collect(collectingAndThen(toCollection(Vector::new), DefaultComboBoxModel::new));
         this.algorithmsComboBox.setModel(algorithmModel);
 
         EvaluatingFunction evaluatingFunction = Util.createFunction(EntryPoint.functions[0]);
@@ -283,7 +289,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         //paret button function, opens new JFrame
         this.paretBtn.addActionListener(e -> {
             XYChart chart = new XYChartBuilder().width(800).height(600).title("Gaussian Blobs").xAxisTitle("f1")
-                                                .yAxisTitle("g").build();
+                    .yAxisTitle("g").build();
 
             // Customize Chart
             chart.getStyler().setChartTitleVisible(false);

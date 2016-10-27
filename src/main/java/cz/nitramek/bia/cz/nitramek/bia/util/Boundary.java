@@ -1,9 +1,9 @@
 package cz.nitramek.bia.cz.nitramek.bia.util;
 
 
-import lombok.Data;
-
 import java.util.Random;
+
+import lombok.Data;
 
 @Data
 public class Boundary {
@@ -45,9 +45,9 @@ public class Boundary {
 
 
     public double getInRange(double x) {
-        if (x < this.min) {
+        if (x <= this.min) {
             return x + this.getRange();
-        } else if (x > this.max) {
+        } else if (x >= this.max) {
             return x - this.getRange();
         } else {
             return x;

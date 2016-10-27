@@ -1,17 +1,18 @@
 package cz.nitramek.bia.computation;
 
 
-import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
-import cz.nitramek.bia.function.EvaluatingFunction;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.IntStream;
+
+import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
+import cz.nitramek.bia.function.EvaluatingFunction;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class Individual{
@@ -54,5 +55,12 @@ public class Individual{
 
     public double getFitness(@NonNull EvaluatingFunction evaluatingEvaluatingFunction) {
         return evaluatingEvaluatingFunction.getValue(this.getParameters());
+    }
+
+    @Override
+    public String toString() {
+        return "Individual{" +
+                "parameters=" + Arrays.toString(parameters) +
+                '}';
     }
 }
