@@ -1,5 +1,13 @@
 package cz.nitramek.bia.gui;
 
+import net.sf.surfaceplot.SurfacePlotModel;
+
+import java.awt.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import cz.nitramek.bia.computation.Algorithm;
 import cz.nitramek.bia.computation.Individual;
 import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
@@ -8,13 +16,6 @@ import cz.nitramek.bia.function.EvaluatingFunction;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import net.sf.surfaceplot.SurfacePlotModel;
-
-import java.awt.*;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 @ToString
@@ -89,7 +90,7 @@ public class AlgorithmSimulationModel implements SurfacePlotModel {
     @Override
     public Color getExtraColor() {
         if (this.algorithm.isFinished()) {
-            return Color.RED;
+            return Color.WHITE;
         } else {
             return Color.BLACK;
         }
