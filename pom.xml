@@ -46,45 +46,14 @@
 
                 </executions>
             </plugin>
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-jar-plugin</artifactId>-->
-            <!--<version>3.0.2</version>-->
-            <!--<configuration>-->
-            <!--<archive>-->
-            <!--<manifest>-->
-            <!--<addClasspath>true</addClasspath>-->
-            <!--<classpathPrefix>lib/</classpathPrefix>-->
-            <!--<mainClass>cz.nitramek.bia.gui.EntryPoint</mainClass>-->
-            <!--</manifest>-->
-            <!--<manifestEntries>-->
-            <!--<Class-Path>lib/</Class-Path>-->
-            <!--</manifestEntries>-->
-            <!--</archive>-->
-            <!--</configuration>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-            <!--<groupId>org.apache.maven.plugins</groupId>-->
-            <!--<artifactId>maven-dependency-plugin</artifactId>-->
-            <!--<executions>-->
-            <!--<execution>-->
-            <!--<id>copy-dependencies</id>-->
-            <!--<phase>prepare-package</phase>-->
-            <!--<goals>-->
-            <!--<goal>copy-dependencies</goal>-->
-            <!--</goals>-->
-            <!--<configuration>-->
-            <!--<outputDirectory>${project.build.directory}/classes/lib</outputDirectory>-->
-            <!--<overWriteReleases>false</overWriteReleases>-->
-            <!--<overWriteSnapshots>false</overWriteSnapshots>-->
-            <!--<overWriteIfNewer>true</overWriteIfNewer>-->
-            <!--</configuration>-->
-            <!--</execution>-->
-            <!--</executions>-->
-            <!--</plugin>-->
         </plugins>
     </build>
     <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>3.6.1</version>
+        </dependency>
         <dependency>
             <groupId>com.carrotsearch</groupId>
             <artifactId>hppc</artifactId>
@@ -102,6 +71,4 @@
             <version>3.2.0</version>
         </dependency>
     </dependencies>
-
-
 </project>

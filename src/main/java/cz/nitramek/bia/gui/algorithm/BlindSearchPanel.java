@@ -1,22 +1,19 @@
 package cz.nitramek.bia.gui.algorithm;
 
 
+import java.awt.event.ActionListener;
+import java.util.List;
+
 import cz.nitramek.bia.computation.Algorithm;
 import cz.nitramek.bia.computation.BlindSearch;
 import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.function.EvaluatingFunction;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.util.List;
-
 public class BlindSearchPanel extends AlgorithmPanel {
 
 
     public BlindSearchPanel(ActionListener guiUpdateListener) {
-        super(guiUpdateListener, new BorderLayout());
-        this.add(new JLabel("Just a blind search"));
+        super(guiUpdateListener);
     }
 
     @Override
