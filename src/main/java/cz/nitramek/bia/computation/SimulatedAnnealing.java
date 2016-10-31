@@ -52,7 +52,7 @@ public class SimulatedAnnealing extends Algorithm {
     @Override
     public void advance() {
 
-        for (int i = 0; i < this.getGenerationSize(); i++) {
+        for (int i = 0; i < this.getMaximumGeneration(); i++) {
             MultivariateNormalDistribution mvn = new MultivariateNormalDistribution(this.solution
                     .getParameters(), this.covariance);
 //            List<Boundary> boundaries = Arrays.stream(this.solution.getParameters())
