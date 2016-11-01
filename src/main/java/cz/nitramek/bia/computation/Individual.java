@@ -12,18 +12,29 @@ import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.function.EvaluatingFunction;
 import lombok.Getter;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
+
 public class Individual{
 
+
+    private static int idGenerator = 0;
     @Getter
     private final double parameters[];
+
+
+    private final int id;
+
+    public Individual(double[] parameters) {
+        this.parameters = parameters;
+        this.id = Individual.idGenerator++;
+    }
 
     public static Individual generate(List<Boundary> boundaries, Random random, boolean discrete) {
         double[] parameters = boundaries.stream()
                                         .mapToDouble(p -> discrete ? p.randomInt(random) : p.randomDouble(random))
                                         .toArray();
+        //polymorfmismus
+
         return new Individual(parameters);
     }
 
@@ -56,11 +67,30 @@ public class Individual{
     public double getFitness(@NonNull EvaluatingFunction evaluatingEvaluatingFunction) {
         return evaluatingEvaluatingFunction.getValue(this.getParameters());
     }
+    public Individual clone(){
+        return new Individual(this.getParameters().clone());
+    }
 
     @Override
     public String toString() {
         return "Individual{" +
                 "parameters=" + Arrays.toString(parameters) +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Individual that = (Individual) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }
