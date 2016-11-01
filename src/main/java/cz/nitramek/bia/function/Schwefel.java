@@ -1,11 +1,13 @@
 package cz.nitramek.bia.function;
 
 
-import cz.nitramek.bia.cz.nitramek.bia.util.Util;
-
 import java.util.Arrays;
 
-import static java.lang.Math.*;
+import cz.nitramek.bia.cz.nitramek.bia.util.Util;
+
+import static java.lang.Math.abs;
+import static java.lang.Math.sin;
+import static java.lang.Math.sqrt;
 
 public class Schwefel implements EvaluatingFunction {
 
@@ -26,11 +28,11 @@ public class Schwefel implements EvaluatingFunction {
 
     @Override
     public double getOptimalZMax() {
-        return 500;
+        return 1000;
     }
 
     @Override
     public double getOptimalZMin() {
-        return -500;
+        return -1000;
     }
 }

@@ -25,6 +25,11 @@ public class Rastrigin implements EvaluatingFunction {
 
     @Override
     public double getOptimalZMax() {
-        return 1000;
+        return 200;
+    }
+
+    @Override
+    public double getOptimalZMin() {
+        return -100;
     }
 }
