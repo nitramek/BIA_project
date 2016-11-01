@@ -21,8 +21,8 @@ public class DifferentialEvolutionPanel extends AlgorithmPanel {
 
     public DifferentialEvolutionPanel(ActionListener guiUpdateListener) {
         super(guiUpdateListener);
-        super.addInGrid("F", 0.9, this::setF);
-        super.addInGrid("CR", 0.85, this::setCR);
+        super.addInGrid("F", 0.7, this::setF);
+        super.addInGrid("CR", 0.9, this::setCR);
     }
 
     @Override
