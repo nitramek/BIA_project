@@ -1,13 +1,6 @@
 package cz.nitramek.bia.computation;
 
 
-import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
-import cz.nitramek.bia.cz.nitramek.bia.util.Util;
-import cz.nitramek.bia.function.EvaluatingFunction;
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.Setter;
-
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -15,6 +8,13 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
+import cz.nitramek.bia.cz.nitramek.bia.util.Util;
+import cz.nitramek.bia.function.EvaluatingFunction;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 
 public class Algorithm {
@@ -47,7 +47,8 @@ public class Algorithm {
     private final int maximumGeneration;
 
 
-    public Algorithm(List<Boundary> boundaries, int generationSize, boolean discrete, EvaluatingFunction evaluatingFunction, int maximumGeneration) {
+    public Algorithm(List<Boundary> boundaries, int generationSize, boolean discrete,
+                     EvaluatingFunction evaluatingFunction, int maximumGeneration) {
         this.boundaries = boundaries;
         this.generationSize = generationSize;
         this.discrete = discrete;
@@ -56,18 +57,22 @@ public class Algorithm {
         Random random = new Random();
 
         this.generation = IntStream.range(0, generationSize)
-                                   .mapToObj(i -> Individual.generate(boundaries, random, discrete))
-                                   .collect(Collectors.toList());
+                .mapToObj(i -> Individual.generate(boundaries, random, discrete))
+                .collect(Collectors.toList());
     }
 
 
     public void advance() {
-        if(!this.isFinished()) {
-            this.generation.replaceAll(manipulation::apply);
+        if (!this.isFinished()) {
+            this.generation = this.generation.stream()
+                    .parallel()
+                    .map(this.manipulation)
+                    .collect(Collectors.toList());
             generationIndex++;
         }
     }
-    public boolean isFinished(){
+
+    public boolean isFinished() {
         return this.generationIndex > this.maximumGeneration;
     }
 
@@ -84,7 +89,7 @@ public class Algorithm {
 
     public void setManipulations(List<Function<Individual, Individual>> manipulations) {
         this.manipulation = manipulations.stream()
-                                         .reduce(Function.identity(), Function::andThen);
+                .reduce(Function.identity(), Function::andThen);
         this.manipulation = this.manipulation.andThen(i -> {
             this.checkBoundaries(i);
             return i;
@@ -94,7 +99,7 @@ public class Algorithm {
 
     public Individual getBest() {
         return getGeneration().stream()
-                              .sorted(Comparator.comparing(i -> i.getFitness(this.evaluatingFunction)))
-                              .findFirst().orElseThrow(Util.exceptionMessage("There are no individuals"));
+                .sorted(Comparator.comparing(i -> i.getFitness(this.evaluatingFunction)))
+                .findFirst().orElseThrow(Util.exceptionMessage("There are no individuals"));
     }
 }
