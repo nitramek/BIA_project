@@ -11,7 +11,6 @@ import java.util.Random;
 import java.util.function.DoubleBinaryOperator;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoublePredicate;
-import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 import java.util.stream.IntStream;
@@ -89,14 +88,6 @@ public final class Util {
             }catch (NumberFormatException e){/*ignore*/}
         });
         consumer.accept(Double.parseDouble(text.getText()));
-    }
-    public static void bindProperty(JTextComponent text, IntConsumer consumer) {
-        addChangeListener(text, __ -> {
-            try {
-                consumer.accept(Integer.parseInt(text.getText()));
-            }catch (NumberFormatException e){/*ignore*/}
-        });
-        consumer.accept(Integer.parseInt(text.getText()));
     }
     public static void addChangeListener(JTextComponent text, ChangeListener changeListener) {
         Objects.requireNonNull(text);

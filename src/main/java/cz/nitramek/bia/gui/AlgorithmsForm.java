@@ -16,17 +16,21 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import cz.nitramek.bia.computation.Algorithm;
-import cz.nitramek.bia.computation.Individual;
+import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.cz.nitramek.bia.util.Util;
 import cz.nitramek.bia.function.EvaluatingFunction;
 import cz.nitramek.bia.function.Paret;
@@ -45,6 +49,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
 
 
     private final SurfaceCanvas canvas;
+
     private JButton applyAxisButton;
     private JComboBox<ComboItem<EvaluatingFunction>> comboBox;
     private AlgorithmSimulationModel model;
@@ -71,9 +76,16 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
 
     @Setter(AccessLevel.PRIVATE)
     private int dimension;
+
+    @Setter
+    private double boundaryMin;
+    @Setter
+    private double boundaryMax;
+
     private JButton openTableBtn;
     private JFrame generationFrame;
     private final JTable generationTable;
+    private AlgorithmModel algorithmModel;
 
 
     public AlgorithmsForm(String frameName) {
@@ -102,10 +114,24 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         this.algorithmHolderPanel.add(this.algorithmsComboBox.getModel().getElementAt(0).getItem());
 
         this.generationFrame = new JFrame("Generation");
+        this.generationFrame.getContentPane().setLayout(new BorderLayout());
         this.generationTable = new JTable();
         this.generationTable.setAutoCreateRowSorter(true);
         JScrollPane scroll = new JScrollPane(generationTable);
-        generationFrame.add(scroll);
+        JPanel boundControls = new JPanel();
+        boundControls.setLayout(new BoxLayout(boundControls, BoxLayout.X_AXIS));
+        boundControls.add(new JLabel("Boundaries: "));
+        JTextField boundaryMinField = new JTextField("-100");
+        boundControls.add(boundaryMinField);
+        Util.bindProperty(boundaryMinField, this::setBoundaryMin);
+
+        JTextField boundaryMaxField = new JTextField("-100");
+        boundControls.add(boundaryMaxField);
+        Util.bindProperty(boundaryMaxField, this::setBoundaryMax);
+
+
+        generationFrame.add(boundControls, BorderLayout.NORTH);
+        generationFrame.add(scroll, BorderLayout.CENTER);
         generationFrame.pack();
     }
 
@@ -207,7 +233,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         gbc.gridx = 1;
         JTextField dimensionsField = new JTextField("2");
 
-        Util.bindProperty(dimensionsField, this::setDimension);
+        Util.bindProperty(dimensionsField, (dimension1) -> setDimension((int) dimension1));
         algorithmPanel.add(dimensionsField, gbc);
 
         gbc.gridy++;
@@ -374,14 +400,23 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
             int maximumGenerations = Integer.parseInt(this.generationSizeField.getText());
             AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel()
                     .getElementAt(this.algorithmsComboBox.getSelectedIndex()).getItem();
+
+            List<Boundary> graphicBoundaries;
+            if (this.dimension > 2) {
+                Boundary boundary = new Boundary(this.boundaryMin, this.boundaryMax);
+                graphicBoundaries = IntStream.range(0, this.dimension)
+                        .mapToObj(i -> boundary)
+                        .collect(Collectors.toList());
+            } else {
+                graphicBoundaries = this.model.getBoundaries();
+            }
             Algorithm algorithm = algorithmPanel.start(this.model.getEvaluatingFunction(),
-                    this.model.getBoundaries(), individualCount, maximumGenerations,
+                    graphicBoundaries, individualCount, maximumGenerations,
                     this.discreteCheckBox.isSelected());
             this.model.setAlgorithm(algorithm);
+            this.algorithmModel = new AlgorithmModel(this.model.getEvaluatingFunction(), algorithm);
         });
-        this.openTableBtn.addActionListener(e -> {
-            this.generationFrame.setVisible(true);
-        });
+        this.openTableBtn.addActionListener(e -> this.generationFrame.setVisible(true));
     }
 
     private void invalidateCanvas() {
@@ -405,22 +440,18 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
 
     private void generationChanged() {
         Object[] columnNames = Stream.concat(
-                                  IntStream.range(0, this.dimension).mapToObj(i -> "x"+ i),
-                                  Stream.of("Fitness"))
-                              .toArray();
-        int generationSize = Integer.parseInt(this.generationSizeField.getText());
-        Double[][] data = new Double[generationSize][this.dimension + 1];
-        List<Individual> individuals = this.model.getAlgorithm().getGeneration();
-        for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[0].length; j++) {
-                if (j == data[0].length - 1) {
-                    data[i][j] = individuals.get(i).getFitness(this.model.getEvaluatingFunction());
-                } else {
-                    data[i][j] = individuals.get(i).getParam(j);
-                }
-            }
-        }
-        this.generationTable.setModel(new DefaultTableModel(data, columnNames));
+                IntStream.range(0, this.dimension).mapToObj(i -> "x" + i),
+                Stream.of("Fitness"))
+                .toArray();
+        this.algorithmModel.updateData();
+        DefaultTableModel tableModel = new DefaultTableModel(this.algorithmModel.getData(),
+                columnNames);
+        TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
+        rowSorter.setComparator(this.dimension, Comparator.<Double>naturalOrder());
+        this.generationTable.setModel(tableModel);
+        this.generationTable.setRowSorter(rowSorter);
+
+
         this.invalidateCanvas();
     }
 }
