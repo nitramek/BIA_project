@@ -14,19 +14,25 @@ import org.knowm.xchart.style.Styler;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 import cz.nitramek.bia.computation.Algorithm;
+import cz.nitramek.bia.computation.Individual;
 import cz.nitramek.bia.cz.nitramek.bia.util.Util;
 import cz.nitramek.bia.function.EvaluatingFunction;
 import cz.nitramek.bia.function.Paret;
 import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
+import lombok.AccessLevel;
+import lombok.Setter;
 import lombok.val;
 
 import static java.lang.Math.PI;
@@ -63,6 +69,12 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
     private JTextField generationSizeField;
     private JPanel algorithmHolderPanel;
 
+    @Setter(AccessLevel.PRIVATE)
+    private int dimension;
+    private JButton openTableBtn;
+    private JFrame generationFrame;
+    private final JTable generationTable;
+
 
     public AlgorithmsForm(String frameName) {
         super(frameName);
@@ -88,6 +100,13 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         this.setupListeners();
 
         this.algorithmHolderPanel.add(this.algorithmsComboBox.getModel().getElementAt(0).getItem());
+
+        this.generationFrame = new JFrame("Generation");
+        this.generationTable = new JTable();
+        this.generationTable.setAutoCreateRowSorter(true);
+        JScrollPane scroll = new JScrollPane(generationTable);
+        generationFrame.add(scroll);
+        generationFrame.pack();
     }
 
     private void setupFunctionPanel(JPanel functionsPanel) {
@@ -158,16 +177,14 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
 
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.gridwidth = 1;
         algorithmPanel.add(new JLabel("Generation size"), gbc);
         this.individualsInput = new JTextArea("10");
 
-        gbc.gridx = 2;
-        gbc.gridwidth = 1;
+        gbc.gridx = 1;
         algorithmPanel.add(individualsInput, gbc);
 
         gbc.gridy++;
-        gbc.gridwidth = 3;
+        gbc.gridwidth = 2;
         gbc.gridx = 0;
         this.discreteCheckBox = new JCheckBox("Discrete");
         algorithmPanel.add(discreteCheckBox, gbc);
@@ -181,10 +198,29 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         this.generationSizeField = new JTextField("10");
         algorithmPanel.add(generationSizeField, gbc);
 
-        //gbc.gridy++;
-        gbc.gridx = 2;
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        algorithmPanel.add(new JLabel("Dimension: "), gbc);
+
+        gbc.gridx = 1;
+        JTextField dimensionsField = new JTextField("2");
+
+        Util.bindProperty(dimensionsField, this::setDimension);
+        algorithmPanel.add(dimensionsField, gbc);
+
+        gbc.gridy++;
+        gbc.gridx = 0;
+        gbc.gridwidth = 1;
+        this.openTableBtn = new JButton("Table");
+        algorithmPanel.add(openTableBtn, gbc);
+
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
         this.runButton = new JButton("Run");
         algorithmPanel.add(runButton, gbc);
+
     }
 
     private void setAxisPanel(JPanel axisPanel) {
@@ -246,7 +282,8 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         gbc.gridwidth = 2;
         this.applyAxisButton = new JButton("Apply");
         axisPanel.add(applyAxisButton, gbc);
-        this.spinners = Arrays.asList(spinnerXMin, spinnerXMax, spinnerYMin, spinnerYMax, spinnerZMin, spinnerZMax);
+        this.spinners = Arrays.asList(spinnerXMin, spinnerXMax, spinnerYMin, spinnerYMax,
+                spinnerZMin, spinnerZMax);
     }
 
     private void setupData() {
@@ -261,7 +298,8 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
                 EntryPoint.algorithmPanels.stream()
                         .map(constructor -> constructor.apply(this))
                         .map(panel -> new ComboItem<>(panel, panel.getAlgorithmName()))
-                        .collect(collectingAndThen(toCollection(Vector::new), DefaultComboBoxModel::new));
+                        .collect(collectingAndThen(toCollection(Vector::new),
+                                DefaultComboBoxModel::new));
         this.algorithmsComboBox.setModel(algorithmModel);
 
         EvaluatingFunction evaluatingFunction = Util.createFunction(EntryPoint.functions[0]);
@@ -273,9 +311,11 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         //change function on change in combo box
         this.comboBox.addActionListener(e -> {
             ComboBoxModel<ComboItem<EvaluatingFunction>> model = this.comboBox.getModel();
-            ComboItem<EvaluatingFunction> comboItem = model.getElementAt(this.comboBox.getSelectedIndex());
+            ComboItem<EvaluatingFunction> comboItem = model.getElementAt(this.comboBox
+                    .getSelectedIndex());
             EvaluatingFunction evaluatingFunction = comboItem.getItem();
-            this.model = new AlgorithmSimulationModel(evaluatingFunction, this.model.getAlgorithm());
+            this.model = new AlgorithmSimulationModel(evaluatingFunction, this.model.getAlgorithm
+                    ());
             this.invalidateCanvas();
         });
         //on axis applyAsDouble button
@@ -288,7 +328,8 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         });
         //paret button function, opens new JFrame
         this.paretBtn.addActionListener(e -> {
-            XYChart chart = new XYChartBuilder().width(800).height(600).title("Gaussian Blobs").xAxisTitle("f1")
+            XYChart chart = new XYChartBuilder().width(800).height(600).title("Gaussian Blobs")
+                    .xAxisTitle("f1")
                     .yAxisTitle("g").build();
 
             // Customize Chart
@@ -306,7 +347,8 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
                 float x2 = random.nextFloat();
                 float f1 = x1;
                 float g = 10 + x2;
-                double alfa = 0.25 + 3.75 * ((g - Paret.G_STAR_STAR) / (Paret.G_STAR - Paret.G_STAR_STAR));
+                double alfa = 0.25 + 3.75 * ((g - Paret.G_STAR_STAR) / (Paret.G_STAR - Paret
+                        .G_STAR_STAR));
                 double f1Slashg = f1 / g;
                 double h = pow(f1Slashg, alfa) - f1Slashg *
                         sin(PI * Paret.F * f1 * g);
@@ -318,8 +360,9 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
             new SwingWrapper<>(chart).displayChart();
         });
         this.algorithmsComboBox.addActionListener(e -> {
-            AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
-                    .getSelectedIndex()).getItem();
+            AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel()
+                    .getElementAt(this.algorithmsComboBox.getSelectedIndex())
+                    .getItem();
             this.algorithmHolderPanel.removeAll();
             this.algorithmHolderPanel.add(algorithmPanel, BorderLayout.CENTER);
             this.algorithmHolderPanel.revalidate();
@@ -329,17 +372,22 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
         this.runButton.addActionListener(e -> {
             int individualCount = Integer.parseInt(individualsInput.getText());
             int maximumGenerations = Integer.parseInt(this.generationSizeField.getText());
-            AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel().getElementAt(this.algorithmsComboBox
-                    .getSelectedIndex()).getItem();
-            Algorithm algorithm = algorithmPanel.start(this.model.getEvaluatingFunction(), this.model
-                    .getBoundaries(), individualCount, maximumGenerations, this.discreteCheckBox.isSelected());
+            AlgorithmPanel algorithmPanel = this.algorithmsComboBox.getModel()
+                    .getElementAt(this.algorithmsComboBox.getSelectedIndex()).getItem();
+            Algorithm algorithm = algorithmPanel.start(this.model.getEvaluatingFunction(),
+                    this.model.getBoundaries(), individualCount, maximumGenerations,
+                    this.discreteCheckBox.isSelected());
             this.model.setAlgorithm(algorithm);
+        });
+        this.openTableBtn.addActionListener(e -> {
+            this.generationFrame.setVisible(true);
         });
     }
 
     private void invalidateCanvas() {
         IntStream.range(0, this.spinners.size())
-                 .forEach(i -> this.spinners.get(i).setText(this.getters.get(i).apply(this.model).toString()));
+                .forEach(i -> this.spinners.get(i).setText(this.getters.get(i).apply(this.model)
+                        .toString()));
 
         this.canvas.setModel(this.model);
         this.canvas.invalidate();
@@ -348,6 +396,31 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
     //function to update GUI, it is expected to be called from another thread, thus invokelater
     @Override
     public void actionPerformed(ActionEvent e) {
-        SwingUtilities.invokeLater(this::invalidateCanvas);
+        try {
+            SwingUtilities.invokeAndWait(this::generationChanged);
+        } catch (InterruptedException | InvocationTargetException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    private void generationChanged() {
+        Object[] columnNames = Stream.concat(
+                                  IntStream.range(0, this.dimension).mapToObj(i -> "x"+ i),
+                                  Stream.of("Fitness"))
+                              .toArray();
+        int generationSize = Integer.parseInt(this.generationSizeField.getText());
+        Double[][] data = new Double[generationSize][this.dimension + 1];
+        List<Individual> individuals = this.model.getAlgorithm().getGeneration();
+        for (int i = 0; i < data.length; i++) {
+            for (int j = 0; j < data[0].length; j++) {
+                if (j == data[0].length - 1) {
+                    data[i][j] = individuals.get(i).getFitness(this.model.getEvaluatingFunction());
+                } else {
+                    data[i][j] = individuals.get(i).getParam(j);
+                }
+            }
+        }
+        this.generationTable.setModel(new DefaultTableModel(data, columnNames));
+        this.invalidateCanvas();
     }
 }

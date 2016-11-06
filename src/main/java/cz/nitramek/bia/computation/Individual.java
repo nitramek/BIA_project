@@ -21,6 +21,8 @@ public class Individual{
     @Getter
     private final double parameters[];
 
+    @Getter
+    private double fitness;
 
     private final int id;
 
@@ -65,7 +67,8 @@ public class Individual{
     }
 
     public double getFitness(@NonNull EvaluatingFunction evaluatingEvaluatingFunction) {
-        return evaluatingEvaluatingFunction.getValue(this.getParameters());
+        this.fitness = evaluatingEvaluatingFunction.getValue(this.getParameters());
+        return fitness;
     }
     public Individual clone(){
         return new Individual(this.getParameters().clone());
