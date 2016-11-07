@@ -25,16 +25,17 @@ public class DifferentialEvolution extends Algorithm {
     }
 
     public Individual crossOver(Individual old) {
+        old.updateFitness(this.getEvaluatingFunction());
         Individual noise = this.createNoise(old);
-        Individual newIndividual = old.clone();
+        double newParameters[] = old.getParameters().clone();
         for (int i = 0; i < noise.getDimension(); i++) {
             if (random.nextDouble() <= this.CR) {
-                newIndividual.getParameters()[i] = noise.getParam(i);
+                newParameters[i] = noise.getParam(i);
             }
         }
-        boolean isNewBetter = newIndividual.getFitness(super.getEvaluatingFunction()) < old
-                .getFitness(super.getEvaluatingFunction());
-        return isNewBetter ? newIndividual : old;
+        Individual newIndividual = new Individual(newParameters);
+        newIndividual.updateFitness(this.getEvaluatingFunction());
+        return newIndividual.getFitness() < old.getFitness() ? newIndividual : old;
     }
 
     public Individual createNoise(Individual individual) {
