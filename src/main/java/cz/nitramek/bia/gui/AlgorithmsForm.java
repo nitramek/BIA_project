@@ -439,19 +439,20 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
     }
 
     private void generationChanged() {
-        Object[] columnNames = Stream.concat(
-                IntStream.range(0, this.dimension).mapToObj(i -> "x" + i),
-                Stream.of("Fitness"))
-                .toArray();
-        this.algorithmModel.updateData();
-        DefaultTableModel tableModel = new DefaultTableModel(this.algorithmModel.getData(),
-                columnNames);
-        TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
-        rowSorter.setComparator(this.dimension, Comparator.<Double>naturalOrder());
-        this.generationTable.setModel(tableModel);
-        this.generationTable.setRowSorter(rowSorter);
+        if(generationFrame.isVisible()) {
+            Object[] columnNames = Stream.concat(
+                    IntStream.range(0, this.dimension).mapToObj(i -> "x" + i),
+                    Stream.of("Fitness"))
+                    .toArray();
+            this.algorithmModel.updateData();
+            DefaultTableModel tableModel = new DefaultTableModel(this.algorithmModel.getData(),
+                    columnNames);
+            TableRowSorter<TableModel> rowSorter = new TableRowSorter<>(tableModel);
+            rowSorter.setComparator(this.dimension, Comparator.<Double>naturalOrder());
+            this.generationTable.setModel(tableModel);
+            this.generationTable.setRowSorter(rowSorter);
 
-
+        }
         this.invalidateCanvas();
     }
 }

@@ -10,6 +10,14 @@ public class Boundary {
     public final double min;
     public final double max;
 
+    public final double range;
+
+    public Boundary(double min, double max) {
+        this.min = min;
+        this.max = max;
+        this.range = max - min;
+    }
+
     /**
      * @return Random in interval {@literal <}min,max>
      */
@@ -45,17 +53,14 @@ public class Boundary {
 
 
     public double getInRange(double x) {
-        if (x <= this.min) {
-            return x + this.getRange();
-        } else if (x >= this.max) {
-            return x - this.getRange();
-        } else {
-            return x;
+        double tmp = x;
+        while (!isInBoundary(tmp)) {
+            if (tmp <= this.min) {
+                tmp += this.range;
+            } else if (tmp >= this.max) {
+                tmp -= this.range;
+            }
         }
-
-    }
-
-    public double getRange() {
-        return this.max - this.min;
+        return tmp;
     }
 }

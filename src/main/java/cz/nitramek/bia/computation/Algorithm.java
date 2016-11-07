@@ -72,15 +72,22 @@ public class Algorithm {
         }
     }
 
+    public int getDimension() {
+        return this.boundaries.size();
+    }
+
     public boolean isFinished() {
         return this.generationIndex > this.maximumGeneration;
     }
 
-    protected void checkBoundaries(Individual individual) {
+    protected Individual checkBoundaries(Individual individual) {
         double[] parameters = individual.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             parameters[i] = this.boundaries.get(i).getInRange(parameters[i]);
         }
+        individual.replaceParam(parameters);
+        individual.updateFitness(this.evaluatingFunction);
+        return individual;
     }
 
     public void setManipulation(Function<Individual, Individual> manipulation) {
@@ -90,16 +97,13 @@ public class Algorithm {
     public void setManipulations(List<Function<Individual, Individual>> manipulations) {
         this.manipulation = manipulations.stream()
                 .reduce(Function.identity(), Function::andThen);
-        this.manipulation = this.manipulation.andThen(i -> {
-            this.checkBoundaries(i);
-            return i;
-        });
+        this.manipulation = this.manipulation.andThen(this::checkBoundaries);
     }
 
 
     public Individual getBest() {
         return getGeneration().stream()
-                .sorted(Comparator.comparing(i -> i.getFitness(this.evaluatingFunction)))
-                .findFirst().orElseThrow(Util.exceptionMessage("There are no individuals"));
+                .collect(Collectors.minBy(Comparator.comparing(i -> i.getFitness(this.evaluatingFunction))))
+                .orElseThrow(Util.exceptionMessage("There are no individuals"));
     }
 }

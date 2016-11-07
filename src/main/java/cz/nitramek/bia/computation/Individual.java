@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
-import java.util.function.IntUnaryOperator;
-import java.util.stream.IntStream;
 
 import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.function.EvaluatingFunction;
@@ -26,8 +24,14 @@ public class Individual{
 
     private final int id;
 
+    public Individual(double[] parameters, double fitness) {
+        this(parameters);
+        this.fitness = fitness;
+
+    }
+
     public Individual(double[] parameters) {
-        this.parameters = parameters;
+        this.parameters = parameters.clone();
         this.id = Individual.idGenerator++;
     }
 
@@ -35,8 +39,6 @@ public class Individual{
         double[] parameters = boundaries.stream()
                                         .mapToDouble(p -> discrete ? p.randomInt(random) : p.randomDouble(random))
                                         .toArray();
-        //polymorfmismus
-
         return new Individual(parameters);
     }
 
@@ -56,22 +58,23 @@ public class Individual{
         this.parameters[index] = operator.applyAsDouble(this.parameters[index]);
     }
 
-    public void replaceParam(int index, IntUnaryOperator operator) {
-        this.parameters[index] = operator.applyAsInt((int) this.parameters[index]);
-    }
 
     public void replaceParam(double[] parameters) {
         assert parameters.length == this.parameters.length;
-        IntStream.range(0, this.parameters.length)
-                 .forEach(i -> this.parameters[i] = parameters[i]);
+        System.arraycopy(this.parameters, 0, parameters, 0, this.parameters.length);
     }
 
     public double getFitness(@NonNull EvaluatingFunction evaluatingEvaluatingFunction) {
-        this.fitness = evaluatingEvaluatingFunction.getValue(this.getParameters());
+        this.updateFitness(evaluatingEvaluatingFunction);
         return fitness;
     }
+
+    public void updateFitness(@NonNull EvaluatingFunction evaluatingEvaluatingFunction) {
+        this.fitness = evaluatingEvaluatingFunction.getValue(this.getParameters());
+    }
+
     public Individual clone(){
-        return new Individual(this.getParameters().clone());
+        return new Individual(this.getParameters().clone(), this.fitness);
     }
 
     @Override
