@@ -29,17 +29,22 @@ import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
 import cz.nitramek.bia.gui.algorithm.BlindSearchPanel;
 import cz.nitramek.bia.gui.algorithm.DifferentialEvolutionPanel;
 import cz.nitramek.bia.gui.algorithm.SimulatedAnnealingPanel;
+import cz.nitramek.bia.gui.algorithm.SomaPanel;
 
 public class EntryPoint {
     static final int HEIGHT = 600;
     static final int WIDTH = 400;
-    static final Class<?>[] functions = {Paret.class, FirstJong.class, RosenBrock.class, ThirdJong.class, ForthJong
-            .class,
-            Rastrigin.class, Schwefel.class, Griewangk.class, SineEnvelope.class, StretchedSin.class, AckleyOne.class,
-            AckleyTwo.class, EggHolder.class, Rana.class, Patological.class, Michalewicz.class, MastersCosine.class};
+    static final Class<?>[] functions = {
+            Paret.class, FirstJong.class, RosenBrock.class,
+            ThirdJong.class, ForthJong.class, Rastrigin.class, Schwefel.class, Griewangk.class,
+            SineEnvelope.class, StretchedSin.class, AckleyOne.class,
+            AckleyTwo.class, EggHolder.class, Rana.class, Patological.class, Michalewicz.class,
+            MastersCosine.class
+    };
 
-    static final List<Function<ActionListener, AlgorithmPanel>> algorithmPanels = Arrays
-            .asList(BlindSearchPanel::new, SimulatedAnnealingPanel::new, DifferentialEvolutionPanel::new);
+    static final List<Function<ActionListener, AlgorithmPanel>> algorithmPanels =
+            Arrays.asList(BlindSearchPanel::new, SimulatedAnnealingPanel::new,
+                    DifferentialEvolutionPanel::new, SomaPanel::new);
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
