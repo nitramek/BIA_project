@@ -30,7 +30,7 @@ public abstract class AlgorithmPanel extends JPanel {
         this.guiUpdateListener = guiUpdateListener;
     }
 
-    public JTextField addInGrid(String label, Number value){
+    public JTextField addInGrid(String label, Number value) {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.NORTH;
@@ -45,13 +45,14 @@ public abstract class AlgorithmPanel extends JPanel {
         return textField;
     }
 
-    public void addInGrid(String label, double value, DoubleConsumer setter){
+    public void addInGrid(String label, double value, DoubleConsumer setter) {
         setter.accept(value);
         Util.bindProperty(addInGrid(label, value), setter);
     }
 
 
-    public abstract Algorithm start(EvaluatingFunction evaluationFunction, List<Boundary> boundaries, int generationSize, int
+    public abstract Algorithm start(EvaluatingFunction evaluationFunction, List<Boundary>
+            boundaries, int generationSize, int
             maximumGeneration, boolean discrete);
 
     /**
@@ -61,13 +62,16 @@ public abstract class AlgorithmPanel extends JPanel {
         Thread t = new Thread(() -> {
             while (!algorithm.isFinished()) {
                 algorithm.advance();
-                this.requestPlotUpdate();
-                try {
-                    Thread.sleep(this.delay);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                if (this.delay != 0) {
+                    this.requestPlotUpdate();
+                    try {
+                        Thread.sleep(this.delay);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
+            this.requestPlotUpdate();
         });
         t.start();
     }
