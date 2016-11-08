@@ -313,7 +313,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
     }
 
     private void setupData() {
-        val comboBoxModel = Arrays.stream(EntryPoint.functions)
+        val comboBoxModel = EntryPoint.functions.stream()
                 .map(Util::createFunction)
                 .map(ComboItem::createComboItem)
                 .collect(collectingAndThen(
@@ -328,7 +328,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
                                 DefaultComboBoxModel::new));
         this.algorithmsComboBox.setModel(algorithmModel);
 
-        EvaluatingFunction evaluatingFunction = Util.createFunction(EntryPoint.functions[0]);
+        EvaluatingFunction evaluatingFunction = Util.createFunction(EntryPoint.functions.get(0));
         this.model = new AlgorithmSimulationModel(evaluatingFunction);
         this.invalidateCanvas();
     }
@@ -439,7 +439,7 @@ public class AlgorithmsForm extends JFrame implements ActionListener {
     }
 
     private void generationChanged() {
-        if(generationFrame.isVisible()) {
+        if (generationFrame.isVisible()) {
             Object[] columnNames = Stream.concat(
                     IntStream.range(0, this.dimension).mapToObj(i -> "x" + i),
                     Stream.of("Fitness"))

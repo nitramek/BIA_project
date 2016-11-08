@@ -48,9 +48,9 @@ public final class Util {
         return () -> new RuntimeException(message);
     }
 
-    public static EvaluatingFunction createFunction(Class<?> function) {
+    public static EvaluatingFunction createFunction(Class<? extends EvaluatingFunction> function) {
         try {
-            return (EvaluatingFunction) function.newInstance();
+            return function.newInstance();
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }

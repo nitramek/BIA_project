@@ -11,6 +11,7 @@ import javax.swing.*;
 import cz.nitramek.bia.function.AckleyOne;
 import cz.nitramek.bia.function.AckleyTwo;
 import cz.nitramek.bia.function.EggHolder;
+import cz.nitramek.bia.function.EvaluatingFunction;
 import cz.nitramek.bia.function.FirstJong;
 import cz.nitramek.bia.function.ForthJong;
 import cz.nitramek.bia.function.Griewangk;
@@ -34,13 +35,13 @@ import cz.nitramek.bia.gui.algorithm.SomaPanel;
 public class EntryPoint {
     static final int HEIGHT = 600;
     static final int WIDTH = 400;
-    static final Class<?>[] functions = {
+    static final List<Class<? extends EvaluatingFunction>> functions = Arrays.asList(
             Paret.class, FirstJong.class, RosenBrock.class,
             ThirdJong.class, ForthJong.class, Rastrigin.class, Schwefel.class, Griewangk.class,
             SineEnvelope.class, StretchedSin.class, AckleyOne.class,
             AckleyTwo.class, EggHolder.class, Rana.class, Patological.class, Michalewicz.class,
             MastersCosine.class
-    };
+    );
 
     static final List<Function<ActionListener, AlgorithmPanel>> algorithmPanels =
             Arrays.asList(BlindSearchPanel::new, SimulatedAnnealingPanel::new,
