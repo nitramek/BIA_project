@@ -29,6 +29,7 @@ import cz.nitramek.bia.function.ThirdJong;
 import cz.nitramek.bia.gui.algorithm.AlgorithmPanel;
 import cz.nitramek.bia.gui.algorithm.BlindSearchPanel;
 import cz.nitramek.bia.gui.algorithm.DifferentialEvolutionPanel;
+import cz.nitramek.bia.gui.algorithm.EvolutionStrategyPanel;
 import cz.nitramek.bia.gui.algorithm.SimulatedAnnealingPanel;
 import cz.nitramek.bia.gui.algorithm.SomaPanel;
 
@@ -45,7 +46,7 @@ public class EntryPoint {
 
     static final List<Function<ActionListener, AlgorithmPanel>> algorithmPanels =
             Arrays.asList(BlindSearchPanel::new, SimulatedAnnealingPanel::new,
-                    DifferentialEvolutionPanel::new, SomaPanel::new);
+                    DifferentialEvolutionPanel::new, SomaPanel::new, EvolutionStrategyPanel::new);
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
