@@ -32,7 +32,7 @@ public class Algorithm {
 
     @Getter
     @NonNull
-    private List<Individual> generation;
+    protected List<Individual> generation;
 
     @Getter
     @Setter
