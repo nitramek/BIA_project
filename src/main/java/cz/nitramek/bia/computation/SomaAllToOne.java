@@ -1,6 +1,7 @@
 package cz.nitramek.bia.computation;
 
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -55,10 +56,15 @@ public class SomaAllToOne extends Algorithm {
     }
 
     public int[] genPRTVector() {
-        return IntStream.range(0, super.getDimension())
-                .mapToDouble(i -> Math.random())
-                .mapToInt(rand -> rand < this.PRT ? 1 : 0)
-                .toArray();
+        while(true){
+            int[] prt = IntStream.range(0, super.getDimension())
+                    .mapToDouble(i -> Math.random())
+                    .mapToInt(rand -> rand < this.PRT ? 1 : 0)
+                    .toArray();
+            if(Arrays.stream(prt).anyMatch(i -> i == 1)){
+                return prt;
+            }
+        }
 
     }
 }
