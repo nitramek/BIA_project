@@ -7,7 +7,6 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -15,12 +14,12 @@ import java.util.stream.Stream;
 
 import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.function.EvaluatingFunction;
+import lombok.val;
 
 public class EvolutionStrategy extends Algorithm {
     private final boolean mixParents;
     private final double FV;
-    private final Random random = new Random();
-    private final MultivariateNormalDistribution mvn;
+    private final double[][] normalDistribution;
 
     public EvolutionStrategy(List<Boundary> boundaries, int generationSize, boolean discrete,
                              EvaluatingFunction evaluatingFunction, int maximumGeneration,
@@ -35,9 +34,10 @@ public class EvolutionStrategy extends Algorithm {
                 .limit(getDimension())
                 .toArray();
 
-        this.mvn = new MultivariateNormalDistribution(means,
+        val mvn = new MultivariateNormalDistribution(means,
                 MatrixUtils.createRealDiagonalMatrix(deviations).getData());
         this.setManipulation(this::mutate);
+        this.normalDistribution = mvn.sample(maximumGeneration + 1);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class EvolutionStrategy extends Algorithm {
 
     public Individual mutate(Individual individual) {
         double[] parameters = individual.getParameters();
-        double[] normalDistribution = mvn.sample();
+        double[] normalDistribution = this.normalDistribution[this.getGenerationIndex()];
         for (int i = 0; i < parameters.length; i++) {
             parameters[i] += normalDistribution[i];
             if(this.isDiscrete()){
