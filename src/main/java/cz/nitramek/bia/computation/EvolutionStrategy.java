@@ -7,6 +7,7 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -18,14 +19,17 @@ import lombok.val;
 
 public class EvolutionStrategy extends Algorithm {
     private final boolean mixParents;
+    private final double stdDeviation;
     private final double FV;
     private final double[][] normalDistribution;
+    private Random random = new Random();
 
     public EvolutionStrategy(List<Boundary> boundaries, int generationSize, boolean discrete,
                              EvaluatingFunction evaluatingFunction, int maximumGeneration,
                              boolean mixParents, double stdDeviation, double FV) {
         super(boundaries, generationSize, discrete, evaluatingFunction, maximumGeneration);
         this.mixParents = mixParents;
+        this.stdDeviation = stdDeviation;
         this.FV = FV;
         double[] means = DoubleStream.iterate(0, DoubleUnaryOperator.identity())
                 .limit(getDimension())
@@ -47,9 +51,9 @@ public class EvolutionStrategy extends Algorithm {
 
     public Individual mutate(Individual individual) {
         double[] parameters = individual.getParameters();
-        double[] normalDistribution = this.normalDistribution[this.getGenerationIndex()];
         for (int i = 0; i < parameters.length; i++) {
-            parameters[i] += normalDistribution[i];
+            double normalDistributionRandom = random.nextGaussian() * stdDeviation;
+            parameters[i] += normalDistributionRandom;
             if(this.isDiscrete()){
                 parameters[i] = (int)parameters[i];
             }
