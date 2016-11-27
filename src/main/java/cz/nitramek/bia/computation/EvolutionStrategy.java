@@ -7,7 +7,6 @@ import org.apache.commons.math3.linear.MatrixUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Random;
 import java.util.function.DoubleUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
@@ -15,21 +14,17 @@ import java.util.stream.Stream;
 
 import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.function.EvaluatingFunction;
-import lombok.val;
 
 public class EvolutionStrategy extends Algorithm {
     private final boolean mixParents;
-    private final double stdDeviation;
     private final double FV;
-    private final double[][] normalDistribution;
-    private Random random = new Random();
+    private final MultivariateNormalDistribution mvn;
 
     public EvolutionStrategy(List<Boundary> boundaries, int generationSize, boolean discrete,
                              EvaluatingFunction evaluatingFunction, int maximumGeneration,
                              boolean mixParents, double stdDeviation, double FV) {
         super(boundaries, generationSize, discrete, evaluatingFunction, maximumGeneration);
         this.mixParents = mixParents;
-        this.stdDeviation = stdDeviation;
         this.FV = FV;
         double[] means = DoubleStream.iterate(0, DoubleUnaryOperator.identity())
                 .limit(getDimension())
@@ -38,10 +33,9 @@ public class EvolutionStrategy extends Algorithm {
                 .limit(getDimension())
                 .toArray();
 
-        val mvn = new MultivariateNormalDistribution(means,
+        this.mvn = new MultivariateNormalDistribution(means,
                 MatrixUtils.createRealDiagonalMatrix(deviations).getData());
         this.setManipulation(this::mutate);
-        this.normalDistribution = mvn.sample(maximumGeneration + 1);
     }
 
     @Override
@@ -51,11 +45,11 @@ public class EvolutionStrategy extends Algorithm {
 
     public Individual mutate(Individual individual) {
         double[] parameters = individual.getParameters();
+        double[] normalDistribution = mvn.sample();
         for (int i = 0; i < parameters.length; i++) {
-            double normalDistributionRandom = random.nextGaussian() * stdDeviation;
-            parameters[i] += normalDistributionRandom;
-            if(this.isDiscrete()){
-                parameters[i] = (int)parameters[i];
+            parameters[i] += normalDistribution[i];
+            if (this.isDiscrete()) {
+                parameters[i] = (int) parameters[i];
             }
         }
         return new Individual(parameters);
