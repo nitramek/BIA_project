@@ -1,3 +1,6 @@
+
+
+
 package cz.nitramek.bia.computation;
 
 
@@ -16,9 +19,10 @@ import cz.nitramek.bia.cz.nitramek.bia.util.Boundary;
 import cz.nitramek.bia.function.EvaluatingFunction;
 
 public class EvolutionStrategy extends Algorithm {
+
     private final boolean mixParents;
     private final double FV;
-    private final MultivariateNormalDistribution mvn;
+    private final MultivariateNormalDistribution normalDistribution;
 
     public EvolutionStrategy(List<Boundary> boundaries, int generationSize, boolean discrete,
                              EvaluatingFunction evaluatingFunction, int maximumGeneration,
@@ -33,7 +37,7 @@ public class EvolutionStrategy extends Algorithm {
                 .limit(getDimension())
                 .toArray();
 
-        this.mvn = new MultivariateNormalDistribution(means,
+        this.normalDistribution = new MultivariateNormalDistribution(means,
                 MatrixUtils.createRealDiagonalMatrix(deviations).getData());
         this.setManipulation(this::mutate);
     }
@@ -45,9 +49,9 @@ public class EvolutionStrategy extends Algorithm {
 
     public Individual mutate(Individual individual) {
         double[] parameters = individual.getParameters();
-        double[] normalDistribution = mvn.sample();
+        double[] normalDistributionVector = this.normalDistribution.sample();
         for (int i = 0; i < parameters.length; i++) {
-            parameters[i] += normalDistribution[i];
+            parameters[i] += normalDistributionVector[i];
             if (this.isDiscrete()) {
                 parameters[i] = (int) parameters[i];
             }
@@ -68,3 +72,5 @@ public class EvolutionStrategy extends Algorithm {
 
     }
 }
+
+
